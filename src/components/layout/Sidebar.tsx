@@ -70,11 +70,12 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
     <TooltipProvider>
       <aside
         className={cn(
-          'fixed left-0 top-0 z-40 h-full bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-smooth',
+          'fixed left-0 top-0 z-40 h-full bg-sidebar-background/95 backdrop-blur-sm border-r border-sidebar-border transition-all duration-300 ease-smooth',
           isExpanded ? 'w-sidebar-expanded' : 'w-sidebar-collapsed',
           'shadow-custom-md',
           className
         )}
+        style={{ backgroundColor: 'hsl(var(--sidebar-background))' }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >

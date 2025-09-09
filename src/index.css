@@ -74,13 +74,13 @@ All colors MUST be HSL for consistency.
     --sidebar-width-expanded: 280px;
     --sidebar-width-collapsed: 72px;
 
-    --sidebar-background: 0 0% 0%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 54 95% 62%;
     --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 25%;
     --sidebar-ring: 54 95% 62%;
   }
 
@@ -123,13 +123,13 @@ All colors MUST be HSL for consistency.
     --input: 0 0% 10%;
     --ring: 54 95% 62%;
 
-    --sidebar-background: 0 0% 0%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 54 95% 62%;
     --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 25%;
     --sidebar-ring: 54 95% 62%;
   }
 }
