@@ -33,12 +33,14 @@ const navigationItems = [
   { icon: FileText, label: 'Resources', path: '/resources' },
   { icon: Calendar, label: 'Calendar / Events', path: '/calendar' },
   { icon: User, label: 'Profile & Settings', path: '/profile' },
+  { icon: BookOpen, label: 'Tutor Dashboard', path: '/tutor', tutorOnly: true },
   { icon: Settings, label: 'Admin Panel', path: '/admin', adminOnly: true },
 ];
 
 export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isAdmin] = useState(true); // Mock admin status
+  const [isTutor] = useState(true); // Mock tutor status - in real app, get from user context
   const location = useLocation();
 
   const isExpanded = mode === 'expanded' || (mode === 'hover' && isHovered);
@@ -68,7 +70,7 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
     <TooltipProvider>
       <aside
         className={cn(
-          'fixed left-0 top-0 z-40 h-full bg-gradient-subtle border-r border-border transition-all duration-300 ease-smooth',
+          'fixed left-0 top-0 z-40 h-full bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-smooth',
           isExpanded ? 'w-sidebar-expanded' : 'w-sidebar-collapsed',
           'shadow-custom-md',
           className
@@ -78,16 +80,16 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
       >
         <div className="flex h-full flex-col">
           {/* Logo Section */}
-          <div className="flex h-16 items-center justify-center border-b border-border px-4">
+          <div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4">
             {showLabels ? (
               <div className="flex items-center space-x-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary text-white font-bold text-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground font-bold text-sm">
                   CL
                 </div>
-                <span className="font-semibold text-lg text-foreground">CampusLearn</span>
+                <span className="font-semibold text-lg text-sidebar-foreground">CampusLearn</span>
               </div>
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary text-white font-bold text-sm">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground font-bold text-sm">
                 CL
               </div>
             )}
@@ -97,6 +99,7 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
           <nav className="flex-1 space-y-1 p-4">
             {navigationItems.map((item) => {
               if (item.adminOnly && !isAdmin) return null;
+              if (item.tutorOnly && !isTutor) return null;
               
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
@@ -108,10 +111,10 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
                   className={({ isActive }) =>
                     cn(
                       'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
-                      'hover:bg-accent hover:text-accent-foreground',
+                      'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                       isActive
-                        ? 'bg-primary text-primary-foreground shadow-custom-sm'
-                        : 'text-muted-foreground hover:text-foreground'
+                        ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-custom-sm'
+                        : 'text-sidebar-foreground hover:text-sidebar-primary'
                     )
                   }
                 >
@@ -136,12 +139,12 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
           </nav>
 
           {/* Bottom Section */}
-          <div className="border-t border-border p-4">
+          <div className="border-t border-sidebar-border p-4">
             {/* Sidebar Controls */}
             <div className="mb-4">
               {showLabels ? (
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">Sidebar Mode</p>
+                  <p className="text-xs font-medium text-sidebar-foreground/60">Sidebar Mode</p>
                   <div className="flex space-x-1">
                     {(['expanded', 'collapsed', 'hover'] as const).map((modeOption) => (
                       <Button
@@ -183,21 +186,21 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
               className={({ isActive }) =>
                 cn(
                   'flex items-center space-x-3 rounded-lg p-3 transition-all duration-200',
-                  'hover:bg-accent hover:text-accent-foreground',
+                  'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                    : 'text-sidebar-foreground hover:text-sidebar-primary'
                 )
               }
             >
               <Avatar className="h-8 w-8">
                 <AvatarImage src="/api/placeholder/32/32" alt="Profile" />
-                <AvatarFallback className="bg-secondary text-secondary-foreground">JS</AvatarFallback>
+                <AvatarFallback className="bg-accent text-accent-foreground">JS</AvatarFallback>
               </Avatar>
               {showLabels && (
                 <div className="flex-1 truncate">
-                  <p className="text-sm font-medium">John Student</p>
-                  <p className="text-xs text-muted-foreground">john@campus.edu</p>
+                  <p className="text-sm font-medium text-sidebar-foreground">John Student</p>
+                  <p className="text-xs text-sidebar-foreground/60">john@campus.edu</p>
                 </div>
               )}
             </NavLink>
