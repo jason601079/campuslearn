@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,7 @@ import {
   BookOpen,
   Video,
   FileImage,
-  Link,
+  Link as LinkIcon,
   Star,
   Eye,
   Upload,
@@ -103,7 +104,7 @@ export default function Resources() {
       case 'image':
         return FileImage;
       case 'link':
-        return Link;
+        return LinkIcon;
       default:
         return FileText;
     }
@@ -196,7 +197,9 @@ export default function Resources() {
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h3 className="text-lg font-semibold mb-1">{resource.title}</h3>
+                            <Link to={`/resources/${resource.id}`} className="block hover:text-primary transition-colors">
+                              <h3 className="text-lg font-semibold mb-1 hover:underline">{resource.title}</h3>
+                            </Link>
                             <p className="text-muted-foreground mb-3">{resource.description}</p>
                             
                             <div className="flex flex-wrap gap-1 mb-3">
@@ -226,9 +229,11 @@ export default function Resources() {
                               {resource.category}
                             </Badge>
                             <div className="flex space-x-2">
-                              <Button variant="outline" size="sm">
-                                <Eye className="mr-1 h-3 w-3" />
-                                Preview
+                              <Button variant="outline" size="sm" asChild>
+                                <Link to={`/resources/${resource.id}`}>
+                                  <Eye className="mr-1 h-3 w-3" />
+                                  Preview
+                                </Link>
                               </Button>
                               <Button size="sm" className="bg-gradient-primary hover:opacity-90">
                                 <Download className="mr-1 h-3 w-3" />

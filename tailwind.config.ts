@@ -79,6 +79,7 @@ export default {
         'custom-sm': 'var(--shadow-sm)',
         'custom-md': 'var(--shadow-md)',
         'custom-lg': 'var(--shadow-lg)',
+        'elegant': 'var(--shadow-elegant)',
         'glow': 'var(--shadow-glow)',
       },
       transitionTimingFunction: {

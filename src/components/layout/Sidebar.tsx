@@ -11,6 +11,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ const navigationItems = [
   { icon: MessageCircle, label: 'Messages', path: '/messages' },
   { icon: FileText, label: 'Resources', path: '/resources' },
   { icon: Calendar, label: 'Calendar / Events', path: '/calendar' },
+  { icon: Bot, label: 'AI Tutor', path: '/ai-tutor' },
   { icon: BookOpen, label: 'Tutor Dashboard', path: '/tutor', tutorOnly: true },
   { icon: Settings, label: 'Admin Panel', path: '/admin', adminOnly: true },
 ];
