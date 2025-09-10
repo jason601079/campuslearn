@@ -3,59 +3,32 @@ import { Search, Bell, Settings, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-
 interface TopNavigationProps {
   sidebarExpanded: boolean;
   className?: string;
 }
-
-export function TopNavigation({ sidebarExpanded, className }: TopNavigationProps) {
+export function TopNavigation({
+  sidebarExpanded,
+  className
+}: TopNavigationProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [hasNotifications] = useState(3); // Mock notification count
 
-  return (
-    <header
-      className={cn(
-        'fixed top-0 z-30 h-16 border-b border-border bg-background/80 backdrop-blur-sm transition-all duration-300 ease-smooth',
-        sidebarExpanded ? 'left-sidebar-expanded' : 'left-sidebar-collapsed',
-        'right-0',
-        className
-      )}
-    >
+  return <header className={cn('fixed top-0 z-30 h-16 border-b border-border bg-background/80 backdrop-blur-sm transition-all duration-300 ease-smooth', sidebarExpanded ? 'left-sidebar-expanded' : 'left-sidebar-collapsed', 'right-0', className)}>
       <div className="flex h-full items-center justify-between px-6">
         {/* Left Section - Logo/Title (when sidebar collapsed) */}
         <div className="flex items-center space-x-4">
-          {!sidebarExpanded && (
-            <div className="flex items-center space-x-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary text-white font-bold text-sm">
-                CL
-              </div>
-              <span className="font-semibold text-lg text-foreground">CampusLearn</span>
-            </div>
-          )}
+          {!sidebarExpanded}
         </div>
 
         {/* Center Section - Search */}
         <div className="flex-1 max-w-md mx-8">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search courses, tutors, resources..."
-              className="w-full pl-9 pr-4 bg-muted/50 border-muted-foreground/20 focus:bg-background"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <Input type="search" placeholder="Search courses, tutors, resources..." className="w-full pl-9 pr-4 bg-muted/50 border-muted-foreground/20 focus:bg-background" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
           </div>
         </div>
 
@@ -64,14 +37,9 @@ export function TopNavigation({ sidebarExpanded, className }: TopNavigationProps
           {/* Notifications */}
           <Button variant="ghost" size="sm" className="relative">
             <Bell className="h-5 w-5" />
-            {hasNotifications > 0 && (
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
-              >
+            {hasNotifications > 0 && <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center">
                 {hasNotifications}
-              </Badge>
-            )}
+              </Badge>}
           </Button>
 
           {/* User Menu */}
@@ -111,6 +79,5 @@ export function TopNavigation({ sidebarExpanded, className }: TopNavigationProps
           </DropdownMenu>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 }
