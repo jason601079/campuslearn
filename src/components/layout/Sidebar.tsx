@@ -186,7 +186,8 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
               to="/profile"
               className={({ isActive }) =>
                 cn(
-                  'flex items-center space-x-3 rounded-lg p-3 transition-all duration-200',
+                  'flex items-center rounded-lg p-3 transition-all duration-200',
+                  showLabels ? 'space-x-3' : 'justify-center',
                   'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                   isActive
                     ? 'bg-sidebar-primary text-sidebar-primary-foreground'
@@ -194,9 +195,11 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
                 )
               }
             >
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarImage src="/api/placeholder/32/32" alt="Profile" />
-                <AvatarFallback className="bg-accent text-accent-foreground">JS</AvatarFallback>
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center">
+                  JS
+                </AvatarFallback>
               </Avatar>
               {showLabels && (
                 <div className="flex-1 truncate">
