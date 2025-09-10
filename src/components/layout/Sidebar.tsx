@@ -32,7 +32,6 @@ const navigationItems = [
   { icon: MessageCircle, label: 'Messages', path: '/messages' },
   { icon: FileText, label: 'Resources', path: '/resources' },
   { icon: Calendar, label: 'Calendar / Events', path: '/calendar' },
-  { icon: User, label: 'Profile & Settings', path: '/profile' },
   { icon: BookOpen, label: 'Tutor Dashboard', path: '/tutor', tutorOnly: true },
   { icon: Settings, label: 'Admin Panel', path: '/admin', adminOnly: true },
 ];
@@ -106,12 +105,13 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
               const Icon = item.icon;
 
               const navButton = (
-                <NavLink
+                  <NavLink
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                      'flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                      showLabels ? 'space-x-3' : 'justify-center',
                       'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                       isActive
                         ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-custom-sm'
@@ -119,7 +119,10 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
                     )
                   }
                 >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <Icon className={cn(
+                    "h-5 w-5 flex-shrink-0",
+                    !showLabels && "text-sidebar-primary" // Make icons visible when collapsed
+                  )} />
                   {showLabels && <span className="truncate">{item.label}</span>}
                 </NavLink>
               );
