@@ -15,6 +15,8 @@ import Calendar from "./pages/Calendar";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Tutor from "./pages/Tutor";
+import FAQ from "./pages/FAQ";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,7 @@ const App = () => (
         <MainLayout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/forum" element={<Forum />} />
             <Route path="/messages" element={<Messages />} />
@@ -35,6 +38,7 @@ const App = () => (
             <Route path="/resources/:id" element={<ResourceDetail />} />
             <Route path="/ai-tutor" element={<AITutor />} />
             <Route path="/calendar" element={<Calendar />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/tutor" element={<Tutor />} />
