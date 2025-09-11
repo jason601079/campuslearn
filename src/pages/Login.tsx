@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,25 +15,32 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Check hardcoded credentials
-    if (email === 'test@gmail.com' && password === 'testing') {
+    try {
+      const success = await login(email, password);
+      
+      if (success) {
+        toast({
+          title: 'Login Successful',
+          description: 'Welcome to CampusLearn!',
+        });
+        navigate('/');
+      } else {
+        toast({
+          title: 'Login Failed',
+          description: 'Invalid email or password.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
       toast({
-        title: 'Login Successful',
-        description: 'Welcome to CampusLearn!',
-      });
-      navigate('/');
-    } else {
-      toast({
-        title: 'Login Failed',
-        description: 'Invalid email or password.',
+        title: 'Login Error',
+        description: 'Something went wrong. Please try again.',
         variant: 'destructive',
       });
     }

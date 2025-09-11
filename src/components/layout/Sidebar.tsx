@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuth } from '@/context/AuthContext';
 
 export type SidebarMode = 'expanded' | 'collapsed' | 'hover';
 
@@ -42,9 +43,11 @@ const navigationItems = [
 
 export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isAdmin] = useState(true); // Mock admin status
-  const [isTutor] = useState(true); // Mock tutor status - in real app, get from user context
+  const { user } = useAuth();
   const location = useLocation();
+  
+  const isAdmin = user?.isAdmin || false;
+  const isTutor = user?.isTutor || false;
 
   const isExpanded = mode === 'expanded' || (mode === 'hover' && isHovered);
   const showLabels = isExpanded;
@@ -203,15 +206,15 @@ export function Sidebar({ mode, onModeChange, className }: SidebarProps) {
               }
             >
               <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src="/api/placeholder/32/32" alt="Profile" />
+                <AvatarImage src={user?.avatar} alt="Profile" />
                 <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center">
-                  JS
+                  {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
                 </AvatarFallback>
               </Avatar>
               {showLabels && (
                 <div className="flex-1 truncate">
-                  <p className="text-sm font-medium text-sidebar-foreground">John Student</p>
-                  <p className="text-xs text-sidebar-foreground/60">john@campus.edu</p>
+                  <p className="text-sm font-medium text-sidebar-foreground">{user?.name || 'User'}</p>
+                  <p className="text-xs text-sidebar-foreground/60">{user?.email || 'user@campus.edu'}</p>
                 </div>
               )}
             </NavLink>

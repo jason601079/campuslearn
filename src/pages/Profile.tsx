@@ -4,408 +4,304 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  BookOpen,
-  Bell,
-  Shield,
-  Camera,
-  Save,
-  Edit,
-} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { User, Mail, Phone, MapPin, GraduationCap, LogOut, Upload } from 'lucide-react';
 
-export default function Profile() {
+const Profile = () => {
+  const { user, logout, updateUser } = useAuth();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: 'John Student',
-    email: 'john@campus.edu',
-    phone: '+1 (555) 123-4567',
-    bio: 'Computer Science major with a passion for mathematics and tutoring fellow students.',
-    campus: 'University of Technology',
-    year: 'Junior',
-    major: 'Computer Science',
-    location: 'Campus Dormitory Block A'
+  const [tutorApplication, setTutorApplication] = useState({
+    subjects: '',
+    qualifications: '',
+    experience: '',
+    availability: ''
   });
 
-  const [settings, setSettings] = useState({
-    notifications: {
-      email: true,
-      push: true,
-      sms: false,
-      marketing: false
-    },
-    privacy: {
-      profileVisibility: 'public',
-      showEmail: false,
-      showPhone: false
-    },
-    theme: 'system'
-  });
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: 'Logged Out',
+      description: 'You have been successfully logged out.',
+    });
+  };
 
-  const stats = [
-    { label: 'Courses Enrolled', value: '8', icon: BookOpen },
-    { label: 'Study Sessions', value: '24', icon: Calendar },
-    { label: 'Forum Posts', value: '156', icon: User },
-    { label: 'Hours Studied', value: '42h', icon: BookOpen },
-  ];
+  const handleSaveProfile = () => {
+    setIsEditing(false);
+    toast({
+      title: 'Profile Updated',
+      description: 'Your profile has been successfully updated.',
+    });
+  };
 
-  const achievements = [
-    { name: 'Top Contributor', description: 'Active forum participant', color: 'bg-primary' },
-    { name: 'Study Streak', description: '30 days straight', color: 'bg-secondary' },
-    { name: 'Peer Helper', description: 'Helped 10+ students', color: 'bg-success' },
-  ];
+  const handleTutorApplication = () => {
+    updateUser({ tutorApplicationStatus: 'pending' });
+    toast({
+      title: 'Application Submitted',
+      description: 'Your tutor application has been submitted for review.',
+    });
+  };
+
+  const getTutorStatusBadge = () => {
+    if (user?.isTutor) {
+      return <Badge variant="secondary" className="bg-green-100 text-green-800">Active Tutor</Badge>;
+    }
+    
+    switch (user?.tutorApplicationStatus) {
+      case 'pending':
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Application Pending</Badge>;
+      case 'approved':
+        return <Badge variant="secondary" className="bg-green-100 text-green-800">Application Approved</Badge>;
+      case 'rejected':
+        return <Badge variant="secondary" className="bg-red-100 text-red-800">Application Rejected</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Profile & Settings</h1>
-          <p className="text-muted-foreground">Manage your account and preferences</p>
-        </div>
-        <Button 
-          onClick={() => setIsEditing(!isEditing)}
-          variant={isEditing ? "default" : "outline"}
-        >
-          {isEditing ? <Save className="mr-2 h-4 w-4" /> : <Edit className="mr-2 h-4 w-4" />}
-          {isEditing ? 'Save Changes' : 'Edit Profile'}
+        <h1 className="text-3xl font-bold text-foreground">Profile & Settings</h1>
+        <Button variant="outline" onClick={handleLogout} className="gap-2">
+          <LogOut className="h-4 w-4" />
+          Logout
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Profile Overview */}
-        <Card className="lg:col-span-1">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="relative inline-block">
-                <Avatar className="h-24 w-24 mx-auto">
-                  <AvatarImage src="/api/placeholder/96/96" alt="Profile" />
-                  <AvatarFallback className="text-2xl">JS</AvatarFallback>
-                </Avatar>
-                {isEditing && (
-                  <Button 
-                    size="sm" 
-                    className="absolute bottom-0 right-0 rounded-full h-8 w-8 p-0"
-                  >
-                    <Camera className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              
-              <h2 className="text-xl font-semibold mt-4">{profileData.name}</h2>
-              <p className="text-muted-foreground">{profileData.major}</p>
-              <p className="text-sm text-muted-foreground">{profileData.campus}</p>
-              
-              <div className="flex justify-center mt-4">
-                <Badge variant="secondary">{profileData.year}</Badge>
-              </div>
-              
-              <Separator className="my-4" />
-              
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                {stats.map((stat) => {
-                  const Icon = stat.icon;
-                  return (
-                    <div key={stat.label} className="text-center">
-                      <div className="flex justify-center mb-1">
-                        <Icon className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="font-semibold">{stat.value}</div>
-                      <div className="text-xs text-muted-foreground">{stat.label}</div>
-                    </div>
-                  );
-                })}
-              </div>
-              
-              <Separator className="my-4" />
-              
-              {/* Achievements */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Profile Information */}
+        <Card className="shadow-custom-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Personal Information
+            </CardTitle>
+            <CardDescription>
+              Manage your account details and preferences
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Avatar Section */}
+            <div className="flex items-center space-x-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={user.avatar} alt="Profile" />
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg">
+                  {user.name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
               <div className="space-y-2">
-                <h4 className="font-medium text-sm">Achievements</h4>
-                {achievements.map((achievement) => (
-                  <div key={achievement.name} className="flex items-center space-x-2 text-left">
-                    <div className={`w-2 h-2 rounded-full ${achievement.color}`} />
-                    <div className="flex-1">
-                      <div className="text-sm font-medium">{achievement.name}</div>
-                      <div className="text-xs text-muted-foreground">{achievement.description}</div>
-                    </div>
-                  </div>
-                ))}
+                <h3 className="text-lg font-semibold">{user.name}</h3>
+                <div className="flex gap-2">
+                  {user.isAdmin && <Badge variant="secondary">Admin</Badge>}
+                  {getTutorStatusBadge()}
+                </div>
+                <Button size="sm" variant="outline" className="gap-2">
+                  <Upload className="h-4 w-4" />
+                  Change Photo
+                </Button>
               </div>
+            </div>
+
+            <Separator />
+
+            {/* Form Fields */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={user.name.split(' ')[0]}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={user.name.split(' ')[1] || ''}
+                    disabled={!isEditing}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={user.email}
+                  disabled={!isEditing}
+                  className="flex items-center gap-2"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  placeholder="+27 (0) 11 123-4567"
+                  disabled={!isEditing}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location">Campus Location</Label>
+                <Input
+                  id="location"
+                  placeholder="Pretoria Campus"
+                  disabled={!isEditing}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              {isEditing ? (
+                <>
+                  <Button onClick={handleSaveProfile}>Save Changes</Button>
+                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Main Content */}
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile">Profile Details</TabsTrigger>
-              <TabsTrigger value="notifications">Notifications</TabsTrigger>
-              <TabsTrigger value="privacy">Privacy & Security</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="profile" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
-                  <CardDescription>Update your personal details and bio</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input 
-                        id="name" 
-                        value={profileData.name}
-                        disabled={!isEditing}
-                        onChange={(e) => setProfileData({...profileData, name: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        value={profileData.email}
-                        disabled={!isEditing}
-                        onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input 
-                        id="phone" 
-                        value={profileData.phone}
-                        disabled={!isEditing}
-                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="year">Academic Year</Label>
-                      <Select value={profileData.year} disabled={!isEditing}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Freshman">Freshman</SelectItem>
-                          <SelectItem value="Sophomore">Sophomore</SelectItem>
-                          <SelectItem value="Junior">Junior</SelectItem>
-                          <SelectItem value="Senior">Senior</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  
+        {/* Tutor Application */}
+        {!user.isTutor && (
+          <Card className="shadow-custom-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GraduationCap className="h-5 w-5" />
+                Become a Tutor
+              </CardTitle>
+              <CardDescription>
+                Apply to become a tutor and help other students succeed
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {user.tutorApplicationStatus === 'none' || !user.tutorApplicationStatus ? (
+                <>
                   <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea 
-                      id="bio" 
-                      placeholder="Tell us about yourself..."
-                      value={profileData.bio}
-                      disabled={!isEditing}
-                      onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                    <Label htmlFor="subjects">Subjects You Can Tutor</Label>
+                    <Input
+                      id="subjects"
+                      placeholder="e.g., Mathematics, Computer Science, Physics"
+                      value={tutorApplication.subjects}
+                      onChange={(e) => setTutorApplication({...tutorApplication, subjects: e.target.value})}
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="campus">Campus</Label>
-                      <Input 
-                        id="campus" 
-                        value={profileData.campus}
-                        disabled={!isEditing}
-                        onChange={(e) => setProfileData({...profileData, campus: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="major">Major</Label>
-                      <Input 
-                        id="major" 
-                        value={profileData.major}
-                        disabled={!isEditing}
-                        onChange={(e) => setProfileData({...profileData, major: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
-            <TabsContent value="notifications" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Bell className="mr-2 h-5 w-5" />
-                    Notification Preferences
-                  </CardTitle>
-                  <CardDescription>Choose how you want to be notified</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base">Email Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Receive updates via email</p>
-                      </div>
-                      <Switch 
-                        checked={settings.notifications.email}
-                        onCheckedChange={(checked) => 
-                          setSettings({
-                            ...settings, 
-                            notifications: {...settings.notifications, email: checked}
-                          })
-                        }
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base">Push Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Get notified in your browser</p>
-                      </div>
-                      <Switch 
-                        checked={settings.notifications.push}
-                        onCheckedChange={(checked) => 
-                          setSettings({
-                            ...settings, 
-                            notifications: {...settings.notifications, push: checked}
-                          })
-                        }
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base">SMS Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Important updates via SMS</p>
-                      </div>
-                      <Switch 
-                        checked={settings.notifications.sms}
-                        onCheckedChange={(checked) => 
-                          setSettings({
-                            ...settings, 
-                            notifications: {...settings.notifications, sms: checked}
-                          })
-                        }
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base">Marketing Communications</Label>
-                        <p className="text-sm text-muted-foreground">Tips, news, and feature updates</p>
-                      </div>
-                      <Switch 
-                        checked={settings.notifications.marketing}
-                        onCheckedChange={(checked) => 
-                          setSettings({
-                            ...settings, 
-                            notifications: {...settings.notifications, marketing: checked}
-                          })
-                        }
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="qualifications">Qualifications</Label>
+                    <Textarea
+                      id="qualifications"
+                      placeholder="List your relevant qualifications and certifications"
+                      value={tutorApplication.qualifications}
+                      onChange={(e) => setTutorApplication({...tutorApplication, qualifications: e.target.value})}
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
-            <TabsContent value="privacy" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Shield className="mr-2 h-5 w-5" />
-                    Privacy & Security
-                  </CardTitle>
-                  <CardDescription>Control your privacy and security settings</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Profile Visibility</Label>
-                      <Select value={settings.privacy.profileVisibility}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="public">Public</SelectItem>
-                          <SelectItem value="campus">Campus Only</SelectItem>
-                          <SelectItem value="private">Private</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base">Show Email Address</Label>
-                        <p className="text-sm text-muted-foreground">Let others see your email</p>
-                      </div>
-                      <Switch 
-                        checked={settings.privacy.showEmail}
-                        onCheckedChange={(checked) => 
-                          setSettings({
-                            ...settings, 
-                            privacy: {...settings.privacy, showEmail: checked}
-                          })
-                        }
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base">Show Phone Number</Label>
-                        <p className="text-sm text-muted-foreground">Make your phone visible to others</p>
-                      </div>
-                      <Switch 
-                        checked={settings.privacy.showPhone}
-                        onCheckedChange={(checked) => 
-                          setSettings({
-                            ...settings, 
-                            privacy: {...settings.privacy, showPhone: checked}
-                          })
-                        }
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="experience">Teaching/Tutoring Experience</Label>
+                    <Textarea
+                      id="experience"
+                      placeholder="Describe your teaching or tutoring experience"
+                      value={tutorApplication.experience}
+                      onChange={(e) => setTutorApplication({...tutorApplication, experience: e.target.value})}
+                    />
                   </div>
-                  
-                  <Separator />
-                  
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Account Actions</h4>
-                    <div className="flex space-x-2">
-                      <Button variant="outline">Change Password</Button>
-                      <Button variant="outline">Two-Factor Auth</Button>
-                    </div>
-                    <Button variant="destructive" className="w-full">
-                      Delete Account
-                    </Button>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="availability">Availability</Label>
+                    <Textarea
+                      id="availability"
+                      placeholder="When are you available to tutor? (days, times, etc.)"
+                      value={tutorApplication.availability}
+                      onChange={(e) => setTutorApplication({...tutorApplication, availability: e.target.value})}
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+
+                  <Button onClick={handleTutorApplication} className="w-full">
+                    Submit Tutor Application
+                  </Button>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  {getTutorStatusBadge()}
+                  <p className="mt-2 text-muted-foreground">
+                    {user.tutorApplicationStatus === 'pending' && 
+                      "Your application is being reviewed. We'll notify you once it's processed."}
+                    {user.tutorApplicationStatus === 'approved' && 
+                      "Your application has been approved! You can now access the tutor dashboard."}
+                    {user.tutorApplicationStatus === 'rejected' && 
+                      "Your application was not approved at this time. You can reapply in 30 days."}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Account Security */}
+        <Card className="shadow-custom-md">
+          <CardHeader>
+            <CardTitle>Security & Privacy</CardTitle>
+            <CardDescription>
+              Manage your account security settings
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button variant="outline" className="w-full">
+              Change Password
+            </Button>
+            <Button variant="outline" className="w-full">
+              Two-Factor Authentication
+            </Button>
+            <Button variant="outline" className="w-full">
+              Privacy Settings
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Notifications */}
+        <Card className="shadow-custom-md">
+          <CardHeader>
+            <CardTitle>Notifications</CardTitle>
+            <CardDescription>
+              Manage how you receive notifications
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="email-notifications">Email Notifications</Label>
+              <input type="checkbox" id="email-notifications" defaultChecked />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="push-notifications">Push Notifications</Label>
+              <input type="checkbox" id="push-notifications" defaultChecked />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="sms-notifications">SMS Notifications</Label>
+              <input type="checkbox" id="sms-notifications" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
-}
+};
+
+export default Profile;
