@@ -21,10 +21,28 @@ import {
   BookOpen,
   Video,
 } from 'lucide-react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, isSameMonth, isToday, addMonths, subMonths } from 'date-fns';
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedView, setSelectedView] = useState('week');
+  const [selectedView, setSelectedView] = useState('month');
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentDate(prev => direction === 'prev' ? subMonths(prev, 1) : addMonths(prev, 1));
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  const getCalendarDays = () => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 }); // Start week on Monday
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+    
+    return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  };
 
   const events = [
     {
@@ -77,6 +95,7 @@ export default function Calendar() {
 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const hours = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+  const calendarDays = getCalendarDays();
 
   const getEventIcon = (type: string) => {
     switch (type) {
@@ -114,11 +133,11 @@ export default function Calendar() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => navigateMonth('prev')}>
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <h2 className="text-xl font-semibold">November 2023</h2>
-                  <Button variant="outline" size="sm">
+                  <h2 className="text-xl font-semibold">{format(currentDate, 'MMMM yyyy')}</h2>
+                  <Button variant="outline" size="sm" onClick={() => navigateMonth('next')}>
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -129,12 +148,11 @@ export default function Calendar() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="day">Day</SelectItem>
                       <SelectItem value="week">Week</SelectItem>
                       <SelectItem value="month">Month</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={goToToday}>
                     Today
                   </Button>
                 </div>
@@ -199,20 +217,40 @@ export default function Calendar() {
                 <div className="p-4">
                   <div className="grid grid-cols-7 gap-1 mb-4">
                     {days.map((day) => (
-                      <div key={day} className="p-2 text-center font-medium text-sm">
+                      <div key={day} className="p-2 text-center font-medium text-sm text-muted-foreground">
                         {day}
                       </div>
                     ))}
                   </div>
                   <div className="grid grid-cols-7 gap-1">
-                    {Array.from({ length: 35 }, (_, i) => (
-                      <div key={i} className="aspect-square border border-border p-1 hover:bg-muted/20 transition-colors">
-                        <div className="text-sm">{((i % 30) + 1).toString()}</div>
-                        {i === 19 && (
-                          <div className="bg-primary w-2 h-2 rounded-full mt-1"></div>
-                        )}
-                      </div>
-                    ))}
+                    {calendarDays.map((day, index) => {
+                      const isCurrentMonth = isSameMonth(day, currentDate);
+                      const isCurrentDay = isToday(day);
+                      
+                      return (
+                        <div 
+                          key={index} 
+                          className={`aspect-square border border-border p-2 hover:bg-muted/20 transition-colors cursor-pointer flex flex-col ${
+                            !isCurrentMonth ? 'text-muted-foreground/40' : ''
+                          }`}
+                        >
+                          <div className={`text-sm font-medium ${
+                            isCurrentDay 
+                              ? 'bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center' 
+                              : ''
+                          }`}>
+                            {format(day, 'd')}
+                          </div>
+                          {/* Mock events for demonstration */}
+                          {isCurrentMonth && format(day, 'd') === '20' && (
+                            <div className="bg-primary w-2 h-2 rounded-full mt-1"></div>
+                          )}
+                          {isCurrentMonth && format(day, 'd') === '22' && (
+                            <div className="bg-secondary w-2 h-2 rounded-full mt-1"></div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
