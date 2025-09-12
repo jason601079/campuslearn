@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -16,6 +18,13 @@ export function TopNavigation({
 }: TopNavigationProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [hasNotifications] = useState(3); // Mock notification count
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return <header className={cn('fixed top-0 z-30 h-16 border-b border-border bg-background/80 backdrop-blur-sm transition-all duration-300 ease-smooth', sidebarExpanded ? 'left-sidebar-expanded' : 'left-sidebar-collapsed', 'right-0', className)}>
       <div className="flex h-full items-center justify-between px-6">
@@ -62,16 +71,16 @@ export function TopNavigation({
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
