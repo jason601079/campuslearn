@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
-import belgiumCampusLogo from '@/assets/belgium-campus-logo.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -53,12 +52,17 @@ const Login = () => {
     <div className="min-h-screen flex">
       {/* Left Panel - Logo */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 to-slate-800 items-center justify-center p-12">
-        <div className="text-center">
-          <img 
-            src={belgiumCampusLogo} 
-            alt="Belgium Campus iTversity" 
-            className="mx-auto mb-8 max-w-md w-full h-auto"
-          />
+        <div className="text-center text-white">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-white text-slate-900 px-6 py-3 rounded-lg font-bold text-3xl mr-4">
+              BC
+            </div>
+            <div className="bg-orange-500 text-white px-4 py-2 rounded font-semibold text-lg">
+              2
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold mb-2">BELGIUM CAMPUS</h1>
+          <p className="text-xl text-orange-400">iTversity</p>
         </div>
       </div>
 
@@ -67,11 +71,16 @@ const Login = () => {
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
-            <img 
-              src={belgiumCampusLogo} 
-              alt="Belgium Campus iTversity" 
-              className="mx-auto mb-4 max-w-xs w-full h-auto"
-            />
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-xl mr-3">
+                BC
+              </div>
+              <div className="bg-orange-500 text-white px-3 py-1 rounded font-semibold">
+                2
+              </div>
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-1">BELGIUM CAMPUS</h2>
+            <p className="text-sm text-orange-500">iTversity</p>
           </div>
 
           <div className="space-y-6">
