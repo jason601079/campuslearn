@@ -2,17 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BookOpen, 
-  Users, 
-  Calendar, 
-  MessageSquare, 
-  DollarSign,
-  Star,
-  Clock,
-  TrendingUp
-} from 'lucide-react';
-
+import { BookOpen, Users, Calendar, MessageSquare, DollarSign, Star, Clock, TrendingUp } from 'lucide-react';
 export default function Tutor() {
   const mockStats = {
     totalStudents: 24,
@@ -20,21 +10,42 @@ export default function Tutor() {
     averageRating: 4.8,
     totalEarnings: 1250
   };
-
-  const upcomingSessions = [
-    { id: 1, student: 'Alice Johnson', subject: 'Mathematics', time: '10:00 AM', date: 'Today' },
-    { id: 2, student: 'Bob Smith', subject: 'Physics', time: '2:00 PM', date: 'Tomorrow' },
-    { id: 3, student: 'Carol Davis', subject: 'Chemistry', time: '4:00 PM', date: 'Dec 12' },
-  ];
-
-  const recentMessages = [
-    { id: 1, student: 'Alice Johnson', message: 'Can we reschedule our session?', time: '2 hours ago' },
-    { id: 2, student: 'David Wilson', message: 'Thank you for the help with calculus!', time: '5 hours ago' },
-    { id: 3, student: 'Emma Brown', message: 'Could you send me the practice problems?', time: '1 day ago' },
-  ];
-
-  return (
-    <div className="space-y-6">
+  const upcomingSessions = [{
+    id: 1,
+    student: 'Alice Johnson',
+    subject: 'Mathematics',
+    time: '10:00 AM',
+    date: 'Today'
+  }, {
+    id: 2,
+    student: 'Bob Smith',
+    subject: 'Physics',
+    time: '2:00 PM',
+    date: 'Tomorrow'
+  }, {
+    id: 3,
+    student: 'Carol Davis',
+    subject: 'Chemistry',
+    time: '4:00 PM',
+    date: 'Dec 12'
+  }];
+  const recentMessages = [{
+    id: 1,
+    student: 'Alice Johnson',
+    message: 'Can we reschedule our session?',
+    time: '2 hours ago'
+  }, {
+    id: 2,
+    student: 'David Wilson',
+    message: 'Thank you for the help with calculus!',
+    time: '5 hours ago'
+  }, {
+    id: 3,
+    student: 'Emma Brown',
+    message: 'Could you send me the practice problems?',
+    time: '1 day ago'
+  }];
+  return <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -82,16 +93,7 @@ export default function Tutor() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${mockStats.totalEarnings}</div>
-            <p className="text-xs text-muted-foreground">+$320 from last month</p>
-          </CardContent>
-        </Card>
+        
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -105,8 +107,7 @@ export default function Tutor() {
             <CardDescription>Your scheduled tutoring sessions</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {upcomingSessions.map((session) => (
-              <div key={session.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+            {upcomingSessions.map(session => <div key={session.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
                 <div className="space-y-1">
                   <p className="font-medium">{session.student}</p>
                   <p className="text-sm text-muted-foreground">{session.subject}</p>
@@ -115,8 +116,7 @@ export default function Tutor() {
                   <Badge variant="outline">{session.date}</Badge>
                   <p className="text-sm text-muted-foreground">{session.time}</p>
                 </div>
-              </div>
-            ))}
+              </div>)}
             <Button variant="outline" className="w-full">
               View All Sessions
             </Button>
@@ -133,15 +133,13 @@ export default function Tutor() {
             <CardDescription>Messages from your students</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentMessages.map((message) => (
-              <div key={message.id} className="space-y-2 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+            {recentMessages.map(message => <div key={message.id} className="space-y-2 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
                 <div className="flex items-center justify-between">
                   <p className="font-medium">{message.student}</p>
                   <p className="text-xs text-muted-foreground">{message.time}</p>
                 </div>
                 <p className="text-sm text-muted-foreground">{message.message}</p>
-              </div>
-            ))}
+              </div>)}
             <Button variant="outline" className="w-full">
               View All Messages
             </Button>
@@ -175,6 +173,5 @@ export default function Tutor() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }
