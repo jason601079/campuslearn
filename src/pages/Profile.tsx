@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,9 @@ const Profile = () => {
   const { user, logout, updateUser } = useAuth();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(user?.avatar || '');
+  const [photoPreview, setPhotoPreview] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [tutorApplication, setTutorApplication] = useState({
     subjects: '',
     qualifications: '',
@@ -30,8 +33,38 @@ const Profile = () => {
     });
   };
 
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: 'File too large',
+          description: 'Please select an image smaller than 5MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setPhotoPreview(result);
+        setProfilePhoto(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePhotoUpload = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleSaveProfile = () => {
+    if (photoPreview) {
+      updateUser({ avatar: profilePhoto });
+    }
     setIsEditing(false);
+    setPhotoPreview('');
     toast({
       title: 'Profile Updated',
       description: 'Your profile has been successfully updated.',
@@ -92,22 +125,36 @@ const Profile = () => {
           <CardContent className="space-y-6">
             {/* Avatar Section */}
             <div className="flex items-center space-x-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={user.avatar} alt="Profile" />
-                <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg">
-                  {user.name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={photoPreview || user.avatar} alt="Profile" />
+                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg">
+                    {user.name.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+                {photoPreview && (
+                  <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                    ✓
+                  </div>
+                )}
+              </div>
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold">{user.name}</h3>
                 <div className="flex gap-2">
                   {user.isAdmin && <Badge variant="secondary">Admin</Badge>}
                   {getTutorStatusBadge()}
                 </div>
-                <Button size="sm" variant="outline" className="gap-2">
+                <Button size="sm" variant="outline" className="gap-2" onClick={handlePhotoUpload}>
                   <Upload className="h-4 w-4" />
                   Change Photo
                 </Button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handlePhotoChange}
+                  accept="image/*"
+                  className="hidden"
+                />
               </div>
             </div>
 
@@ -165,10 +212,14 @@ const Profile = () => {
             </div>
 
             <div className="flex gap-2">
-              {isEditing ? (
+              {isEditing || photoPreview ? (
                 <>
                   <Button onClick={handleSaveProfile}>Save Changes</Button>
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                  <Button variant="outline" onClick={() => {
+                    setIsEditing(false);
+                    setPhotoPreview('');
+                    setProfilePhoto(user.avatar || '');
+                  }}>
                     Cancel
                   </Button>
                 </>
