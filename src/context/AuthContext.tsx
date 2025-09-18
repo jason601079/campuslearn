@@ -39,12 +39,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Check credentials
-    if (email === 'test@gmail.com' && password === 'testing') {
+    // Check credentials - support both manual and Microsoft login
+    if ((email === 'test@gmail.com' && password === 'testing') ||
+        (email === 'microsoft@belgiumcampus.edu' && password === 'microsoft')) {
       setUser({
         id: '1',
-        name: 'John Student',
-        email: 'test@gmail.com',
+        name: email === 'microsoft@belgiumcampus.edu' ? 'Microsoft User' : 'John Student',
+        email: email,
         isAdmin: true,  // Full access for test user
         isTutor: true,  // Full access for test user
         tutorApplicationStatus: 'approved'
