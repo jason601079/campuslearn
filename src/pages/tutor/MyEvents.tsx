@@ -20,10 +20,12 @@ import {
   MapPin,
   Plus,
 } from 'lucide-react';
+import { CreateEventModal } from '@/components/ui/CreateEventModal';
 
 export default function MyEvents() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
+  const [createEventOpen, setCreateEventOpen] = useState(false);
 
   const events = [
     {
@@ -94,7 +96,10 @@ export default function MyEvents() {
           <h1 className="text-3xl font-bold">My Events</h1>
           <p className="text-muted-foreground">Manage your upcoming events and workshops</p>
         </div>
-        <Button className="bg-gradient-primary hover:opacity-90">
+        <Button 
+          className="bg-gradient-primary hover:opacity-90"
+          onClick={() => setCreateEventOpen(true)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Create Event
         </Button>
@@ -190,6 +195,15 @@ export default function MyEvents() {
           </Card>
         ))}
       </div>
+
+      {/* Create Event Modal */}
+      <CreateEventModal
+        open={createEventOpen}
+        onOpenChange={setCreateEventOpen}
+        onEventCreated={() => {
+          // Refresh events list here when connected to backend
+        }}
+      />
     </div>
   );
 }
