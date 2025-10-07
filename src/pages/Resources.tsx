@@ -5,96 +5,89 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  FileText,
-  Download,
-  Search,
-  Filter,
-  BookOpen,
-  Video,
-  FileImage,
-  Link as LinkIcon,
-  Star,
-  Eye,
-  Upload,
-} from 'lucide-react';
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FileText, Download, Search, Filter, BookOpen, Video, FileImage, Link as LinkIcon, Star, Eye, Upload } from 'lucide-react';
 export default function Resources() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-
-  const resources = [
-    {
-      id: 1,
-      title: 'Calculus Cheat Sheet',
-      description: 'Complete reference for integration and differentiation',
-      type: 'document',
-      category: 'Mathematics',
-      author: 'Dr. Sarah Wilson',
-      downloads: 245,
-      rating: 4.8,
-      size: '2.3 MB',
-      uploadDate: '2023-11-15',
-      tags: ['calculus', 'integration', 'differentiation']
-    },
-    {
-      id: 2,
-      title: 'Data Structures Video Tutorial',
-      description: 'Comprehensive video series on arrays, linked lists, and trees',
-      type: 'video',
-      category: 'Computer Science',
-      author: 'Prof. Mike Chen',
-      downloads: 156,
-      rating: 4.9,
-      size: '120 min',
-      uploadDate: '2023-11-10',
-      tags: ['data-structures', 'algorithms', 'programming']
-    },
-    {
-      id: 3,
-      title: 'Organic Chemistry Reaction Map',
-      description: 'Visual guide to common organic chemistry reactions',
-      type: 'image',
-      category: 'Chemistry',
-      author: 'Dr. Emma Rodriguez',
-      downloads: 89,
-      rating: 4.7,
-      size: '5.1 MB',
-      uploadDate: '2023-11-08',
-      tags: ['organic-chemistry', 'reactions', 'visual-guide']
-    },
-    {
-      id: 4,
-      title: 'Physics Problem Solver',
-      description: 'Interactive web tool for solving physics problems',
-      type: 'link',
-      category: 'Physics',
-      author: 'Physics Department',
-      downloads: 312,
-      rating: 4.6,
-      size: 'Web App',
-      uploadDate: '2023-11-05',
-      tags: ['physics', 'problem-solving', 'interactive']
-    },
-  ];
-
-  const categories = [
-    { value: 'all', label: 'All Categories', count: 156 },
-    { value: 'mathematics', label: 'Mathematics', count: 45 },
-    { value: 'computer-science', label: 'Computer Science', count: 38 },
-    { value: 'chemistry', label: 'Chemistry', count: 29 },
-    { value: 'physics', label: 'Physics', count: 22 },
-    { value: 'biology', label: 'Biology', count: 18 },
-    { value: 'general', label: 'General Study', count: 34 },
-  ];
-
+  const resources = [{
+    id: 1,
+    title: 'Calculus Cheat Sheet',
+    description: 'Complete reference for integration and differentiation',
+    type: 'document',
+    category: 'Mathematics',
+    author: 'Dr. Sarah Wilson',
+    downloads: 245,
+    rating: 4.8,
+    size: '2.3 MB',
+    uploadDate: '2023-11-15',
+    tags: ['calculus', 'integration', 'differentiation']
+  }, {
+    id: 2,
+    title: 'Data Structures Video Tutorial',
+    description: 'Comprehensive video series on arrays, linked lists, and trees',
+    type: 'video',
+    category: 'Computer Science',
+    author: 'Prof. Mike Chen',
+    downloads: 156,
+    rating: 4.9,
+    size: '120 min',
+    uploadDate: '2023-11-10',
+    tags: ['data-structures', 'algorithms', 'programming']
+  }, {
+    id: 3,
+    title: 'Organic Chemistry Reaction Map',
+    description: 'Visual guide to common organic chemistry reactions',
+    type: 'image',
+    category: 'Chemistry',
+    author: 'Dr. Emma Rodriguez',
+    downloads: 89,
+    rating: 4.7,
+    size: '5.1 MB',
+    uploadDate: '2023-11-08',
+    tags: ['organic-chemistry', 'reactions', 'visual-guide']
+  }, {
+    id: 4,
+    title: 'Physics Problem Solver',
+    description: 'Interactive web tool for solving physics problems',
+    type: 'link',
+    category: 'Physics',
+    author: 'Physics Department',
+    downloads: 312,
+    rating: 4.6,
+    size: 'Web App',
+    uploadDate: '2023-11-05',
+    tags: ['physics', 'problem-solving', 'interactive']
+  }];
+  const categories = [{
+    value: 'all',
+    label: 'All Categories',
+    count: 156
+  }, {
+    value: 'mathematics',
+    label: 'Mathematics',
+    count: 45
+  }, {
+    value: 'computer-science',
+    label: 'Computer Science',
+    count: 38
+  }, {
+    value: 'chemistry',
+    label: 'Chemistry',
+    count: 29
+  }, {
+    value: 'physics',
+    label: 'Physics',
+    count: 22
+  }, {
+    value: 'biology',
+    label: 'Biology',
+    count: 18
+  }, {
+    value: 'general',
+    label: 'General Study',
+    count: 34
+  }];
   const getResourceIcon = (type: string) => {
     switch (type) {
       case 'document':
@@ -109,7 +102,6 @@ export default function Resources() {
         return FileText;
     }
   };
-
   const getResourceColor = (type: string) => {
     switch (type) {
       case 'document':
@@ -124,18 +116,12 @@ export default function Resources() {
         return 'text-muted-foreground';
     }
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Learning Resources</h1>
+          <h1 className="text-3xl font-bold">My Resources</h1>
           <p className="text-muted-foreground">Access study materials, guides, and tools</p>
         </div>
-        <Button className="bg-gradient-primary hover:opacity-90">
-          <Upload className="mr-2 h-4 w-4" />
-          Upload Resource
-        </Button>
       </div>
 
       {/* Search and Filters */}
@@ -144,23 +130,16 @@ export default function Resources() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search resources..."
-                className="pl-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+              <Input placeholder="Search resources..." className="pl-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.value} value={category.value}>
+                {categories.map(category => <SelectItem key={category.value} value={category.value}>
                     {category.label} ({category.count})
-                  </SelectItem>
-                ))}
+                  </SelectItem>)}
               </SelectContent>
             </Select>
             <Button variant="outline">
@@ -172,55 +151,48 @@ export default function Resources() {
       </Card>
 
       <Tabs defaultValue="all" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="videos">Videos</TabsTrigger>
-          <TabsTrigger value="images">Images</TabsTrigger>
-          <TabsTrigger value="links">Links</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+          <TabsTrigger value="all" className="text-xs md:text-sm">All</TabsTrigger>
+          <TabsTrigger value="documents" className="text-xs md:text-sm">Documents</TabsTrigger>
+          <TabsTrigger value="videos" className="text-xs md:text-sm">Videos</TabsTrigger>
+          <TabsTrigger value="images" className="text-xs md:text-sm">Images</TabsTrigger>
+          <TabsTrigger value="links" className="text-xs md:text-sm">Links</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-6">
-          <div className="grid gap-6">
-            {resources.map((resource) => {
-              const IconComponent = getResourceIcon(resource.type);
-              const iconColor = getResourceColor(resource.type);
-              
-              return (
-                <Card key={resource.id} className="hover:shadow-custom-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      <div className={`p-3 rounded-lg bg-muted`}>
-                        <IconComponent className={`h-8 w-8 ${iconColor}`} />
+          <div className="grid gap-4 md:gap-6">
+            {resources.map(resource => {
+            const IconComponent = getResourceIcon(resource.type);
+            const iconColor = getResourceColor(resource.type);
+            return <Card key={resource.id} className="hover:shadow-custom-md transition-shadow">
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row md:items-start space-y-3 md:space-y-0 md:space-x-4">
+                      <div className={`p-2 md:p-3 rounded-lg bg-muted self-center md:self-start`}>
+                        <IconComponent className={`h-6 w-6 md:h-8 md:w-8 ${iconColor}`} />
                       </div>
                       
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between">
+                      <div className="flex-1 text-center md:text-left">
+                        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
                           <div className="flex-1">
                             <Link to={`/resources/${resource.id}`} className="block hover:text-primary transition-colors">
-                              <h3 className="text-lg font-semibold mb-1 hover:underline">{resource.title}</h3>
+                              <h3 className="text-base md:text-lg font-semibold mb-1 hover:underline line-clamp-2">{resource.title}</h3>
                             </Link>
-                            <p className="text-muted-foreground mb-3">{resource.description}</p>
+                            <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{resource.description}</p>
                             
-                            <div className="flex flex-wrap gap-1 mb-3">
-                              {resource.tags.map((tag) => (
-                                <Badge key={tag} variant="outline" className="text-xs">
+                            <div className="flex flex-wrap justify-center md:justify-start gap-1 mb-3">
+                              {resource.tags.slice(0, 3).map(tag => <Badge key={tag} variant="outline" className="text-xs">
                                   #{tag}
+                                </Badge>)}
+                              {resource.tags.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{resource.tags.length - 3} more
                                 </Badge>
-                              ))}
+                              )}
                             </div>
                             
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <span>by {resource.author}</span>
-                              <div className="flex items-center">
-                                <Star className="mr-1 h-3 w-3 fill-current text-warning" />
-                                {resource.rating}
-                              </div>
-                              <div className="flex items-center">
-                                <Download className="mr-1 h-3 w-3" />
-                                {resource.downloads} downloads
-                              </div>
-                              <span>{resource.size}</span>
+                            <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mt-2 text-xs md:text-sm text-muted-foreground space-y-1 md:space-y-0">
+                              <span className="text-center md:text-left">by {resource.author}</span>
+                              <span className="text-center md:text-left">{resource.size}</span>
                             </div>
                           </div>
                           
@@ -245,9 +217,8 @@ export default function Resources() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              );
-            })}
+                </Card>;
+          })}
           </div>
         </TabsContent>
 
@@ -262,55 +233,6 @@ export default function Resources() {
       </Tabs>
 
       {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold">156</p>
-                <p className="text-muted-foreground text-sm">Total Resources</p>
-              </div>
-              <FileText className="h-8 w-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold">2.4k</p>
-                <p className="text-muted-foreground text-sm">Downloads</p>
-              </div>
-              <Download className="h-8 w-8 text-secondary" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold">4.7</p>
-                <p className="text-muted-foreground text-sm">Avg Rating</p>
-              </div>
-              <Star className="h-8 w-8 text-warning fill-current" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold">89</p>
-                <p className="text-muted-foreground text-sm">Contributors</p>
-              </div>
-              <Upload className="h-8 w-8 text-success" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+      
+    </div>;
 }

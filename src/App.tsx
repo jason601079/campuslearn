@@ -6,8 +6,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { MainLayout } from "@/components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
-import Courses from "./pages/Courses";
+import Events from "./pages/Events";
+import Tutors from "./pages/Tutors";
 import Forum from "./pages/Forum";
+import ForumPost from "./pages/ForumPost";
 import Messages from "./pages/Messages";
 import Resources from "./pages/Resources";
 import AITutor from "./pages/AITutor";
@@ -16,6 +18,8 @@ import Calendar from "./pages/Calendar";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Tutor from "./pages/Tutor";
+import ContentUpload from "./pages/tutor/ContentUpload";
+import MyStudents from "./pages/tutor/MyStudents";
 import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -44,8 +48,11 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/" element={<Dashboard />} />
-        <Route path="/courses" element={<Courses />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/tutors" element={<Tutors />} />
         <Route path="/forum" element={<Forum />} />
+        <Route path="/forum/post" element={<ForumPost />} />
+        <Route path="/forum/post/:id" element={<ForumPost />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/resources/:id" element={<ResourceDetail />} />
@@ -55,6 +62,8 @@ const AppRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/tutor" element={<Tutor />} />
+        <Route path="/tutor/content" element={<ContentUpload />} />
+        <Route path="/tutor/students" element={<MyStudents />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </MainLayout>
