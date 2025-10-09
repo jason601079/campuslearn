@@ -107,6 +107,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return true;
       }
 
+      // Dummy tutor/admin credential for testing
+      if (identifier === 'admin@campus.edu' && password === 'admin123') {
+        setUser({
+          id: 'admin-tutor-001',
+          name: 'Admin Tutor',
+          identifier,
+          email: 'admin@campus.edu',
+          avatar: '',
+          isAdmin: true,
+          isTutor: true,
+          tutorApplicationStatus: 'approved',
+          location: 'Belgium Campus',
+          phoneNumber: '+27 12 345 6789',
+        });
+        localStorage.setItem('authToken', 'dummy-admin-token-12345');
+        return true;
+      }
+
       // Normal backend login
       const res = await fetch('http://localhost:9090/student/login', {
         method: 'POST',
