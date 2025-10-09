@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { EditRecordDialog } from '@/components/ui/EditRecordDialog';
 import {
   Table,
   TableBody,
@@ -50,6 +51,8 @@ import { LineChart, Line, BarChart as RechartsBarChart, Bar, PieChart, Pie, Cell
 export default function Admin() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTable, setSelectedTable] = useState('users');
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<Record<string, any> | null>(null);
 
   // System Stats
   const systemStats = [
@@ -203,6 +206,17 @@ export default function Admin() {
     }
   };
 
+  const handleEditRecord = (record: Record<string, any>) => {
+    setSelectedRecord(record);
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveRecord = (updatedRecord: Record<string, any>) => {
+    // Update the record in the databaseTables state
+    // In a real app, this would make an API call
+    console.log('Saving record:', updatedRecord);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -236,7 +250,6 @@ export default function Admin() {
                 <div>
                   <p className="text-2xl font-bold">{stat.value}</p>
                   <p className="text-muted-foreground text-sm">{stat.label}</p>
-                  <p className="text-xs text-success font-semibold">{stat.change}</p>
                 </div>
               </CardContent>
             </Card>
@@ -246,9 +259,8 @@ export default function Admin() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="database">Database</TabsTrigger>
           <TabsTrigger value="errors">Errors</TabsTrigger>
           <TabsTrigger value="forum">Forum</TabsTrigger>
@@ -343,87 +355,6 @@ export default function Admin() {
           </Card>
         </TabsContent>
 
-        {/* User Management Tab */}
-        <TabsContent value="users" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>User Management</CardTitle>
-                  <CardDescription>Manage student and tutor accounts</CardDescription>
-                </div>
-                <Button size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add User
-                </Button>
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search users by name or email..."
-                  className="pl-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Active</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatar} />
-                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{user.name}</div>
-                            <div className="text-sm text-muted-foreground">{user.email}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{user.role}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(user.status)}>
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {user.lastActive}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-1">
-                          <Button variant="ghost" size="sm" title="View Details">
-                            <Eye className="h-3 w-3" />
-                          </Button>
-                          <Button variant="ghost" size="sm" title="Edit User">
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button variant="ghost" size="sm" title="Suspend/Delete">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Database Tools Tab */}
         <TabsContent value="database" className="space-y-6">
@@ -532,7 +463,12 @@ export default function Admin() {
                       ))}
                       <TableCell>
                         <div className="flex space-x-1">
-                          <Button variant="ghost" size="sm" title="Edit">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Edit"
+                            onClick={() => handleEditRecord(row)}
+                          >
                             <Edit className="h-3 w-3" />
                           </Button>
                           <Button variant="ghost" size="sm" title="Delete">
@@ -751,6 +687,15 @@ export default function Admin() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Record Dialog */}
+      <EditRecordDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        record={selectedRecord}
+        tableName={selectedTable}
+        onSave={handleSaveRecord}
+      />
     </div>
   );
 }
