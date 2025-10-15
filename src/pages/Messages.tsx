@@ -482,7 +482,7 @@ export default function Messages() {
         {isMobile ? (
           <>
             {mobileView === 'conversations' ? (
-              <Card className="h-[calc(100vh-120px)] rounded-xl shadow-md">
+              <Card className="h-[600px] rounded-xl shadow-md flex flex-col">
                 <CardHeader className="p-4">
                   <CardTitle className="text-lg">Chats</CardTitle>
                   <div className="relative">
@@ -490,8 +490,9 @@ export default function Messages() {
                     <Input placeholder="Search messages..." className="pl-9 rounded-full" />
                   </div>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="space-y-1 overflow-y-auto h-[calc(100vh-200px)]">
+                <CardContent className="p-0 flex-1 overflow-hidden">
+                  <ScrollArea className="h-[calc(100vh-220px)]">
+                    <div className="space-y-1 px-2">
                     {isLoading ? (
                       <div className="p-4 text-center text-muted-foreground animate-pulse">Loading conversations...</div>
                     ) : conversations.length === 0 ? (
@@ -527,14 +528,15 @@ export default function Messages() {
                             <p className="text-sm text-muted-foreground truncate mt-1">{conversation.lastMessage}</p>
                           </div>
                         </div>
-                      ))
-                    )}
-                  </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
                 </CardContent>
               </Card>
             ) : (
               currentChat && (
-                <Card className="h-[calc(100vh-80px)] flex flex-col rounded-xl shadow-md">
+                <Card className="h-[600px] flex flex-col rounded-xl shadow-md">
                   <CardHeader className="border-b p-3">
                     <div className="flex items-center space-x-3">
                       <Button 
@@ -666,9 +668,9 @@ export default function Messages() {
           </>
         ) : (
           /* Desktop layout */
-          <div className="grid gap-6 lg:grid-cols-3 h-[calc(100vh-200px)]">
+          <div className="grid gap-6 lg:grid-cols-3 h-[600px]">
             {/* Conversations List */}
-            <Card className="lg:col-span-1">
+            <Card className="lg:col-span-1 flex flex-col">
               <CardHeader>
                 <CardTitle className="text-lg">Conversations</CardTitle>
                 <div className="relative">
@@ -676,8 +678,9 @@ export default function Messages() {
                   <Input placeholder="Search messages..." className="pl-9" />
                 </div>
               </CardHeader>
-              <CardContent className="p-0">
-                <div className="space-y-1 max-h-96 overflow-y-auto">
+              <CardContent className="p-0 flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="space-y-1 px-2">
                   {isLoading ? (
                     <div className="p-4 text-center text-muted-foreground animate-pulse">Loading conversations...</div>
                   ) : conversations.length === 0 ? (
@@ -704,9 +707,10 @@ export default function Messages() {
                           <p className="text-xs text-muted-foreground">{conversation.role}</p>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
               </CardContent>
             </Card>
 
