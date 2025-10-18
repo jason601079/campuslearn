@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { User as UserIcon, Mail, Phone, MapPin, GraduationCap, LogOut, Upload, FileText } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, MapPin, GraduationCap, LogOut, Upload, FileText, ChevronDown } from 'lucide-react';
 import type { User } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { TimeSlotSelector } from '@/components/ui/TimeSlotSelector';
@@ -25,10 +25,28 @@ const Profile = () => {
   const qualificationFileRef = useRef<HTMLInputElement>(null);
   const [qualificationFile, setQualificationFile] = useState<File | null>(null);
   const [tutorApplication, setTutorApplication] = useState({
-    subjects: '',
+    subject: '',
     experience: '',
     availability: [] as Array<{ day: string; times: string[] }>
   });
+
+  const SUBJECTS = [
+    'Mathematics',
+    'Computer Science',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'English',
+    'History',
+    'Geography',
+    'Economics',
+    'Business Studies',
+    'Accounting',
+    'Engineering',
+    'Statistics',
+    'Psychology',
+    'Other'
+  ];
 
   const [subscribed, setSubscribed] = useState<boolean>(false);
 
@@ -298,17 +316,25 @@ const Profile = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="subjects">Subjects You Can Tutor</Label>
-                <Input
-                  id="subjects"
-                  placeholder="e.g., Mathematics, Computer Science, Physics"
-                  value={tutorApplication.subjects}
-                  onChange={(e) => setTutorApplication({ ...tutorApplication, subjects: e.target.value })}
-                />
+                <Label htmlFor="subject">Subject You Can Tutor</Label>
+                <div className="relative">
+                  <select
+                    id="subject"
+                    value={tutorApplication.subject}
+                    onChange={(e) => setTutorApplication({ ...tutorApplication, subject: e.target.value })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none pr-10"
+                  >
+                    <option value="">Select a subject</option>
+                    {SUBJECTS.map(subject => (
+                      <option key={subject} value={subject}>{subject}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 pointer-events-none" />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="qualifications">Qualifications (PDF)</Label>
+                <Label htmlFor="qualifications">Most Recent Transcript (PDF)</Label>
                 <div className="flex items-center gap-3">
                   <Button 
                     type="button"
@@ -334,7 +360,7 @@ const Profile = () => {
                   className="hidden"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Upload a PDF document with your qualifications and certifications (max 10MB)
+                  Upload your most recent academic transcript as a PDF (max 10MB)
                 </p>
               </div>
 
