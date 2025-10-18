@@ -13,6 +13,7 @@ import { User as UserIcon, Mail, Phone, MapPin, GraduationCap, LogOut, Upload, F
 import type { User } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { TimeSlotSelector } from '@/components/ui/TimeSlotSelector';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 const Profile = () => {
@@ -25,7 +26,7 @@ const Profile = () => {
   const qualificationFileRef = useRef<HTMLInputElement>(null);
   const [qualificationFile, setQualificationFile] = useState<File | null>(null);
   const [tutorApplication, setTutorApplication] = useState({
-    subject: '',
+    subjects: [] as string[],
     experience: '',
     availability: [] as Array<{ day: string; times: string[] }>
   });
@@ -143,6 +144,15 @@ const Profile = () => {
       title: 'Application Submitted',
       description: 'Your tutor application has been submitted for review.',
     });
+  };
+
+  const toggleSubject = (subject: string) => {
+    setTutorApplication(prev => ({
+      ...prev,
+      subjects: prev.subjects.includes(subject)
+        ? prev.subjects.filter(s => s !== subject)
+        : [...prev.subjects, subject]
+    }));
   };
 
   const getTutorStatusBadge = () => {
@@ -316,21 +326,38 @@ const Profile = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="subject">Subject You Can Tutor</Label>
-                <div className="relative">
-                  <select
-                    id="subject"
-                    value={tutorApplication.subject}
-                    onChange={(e) => setTutorApplication({ ...tutorApplication, subject: e.target.value })}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none pr-10"
-                  >
-                    <option value="">Select a subject</option>
+                <Label>Subjects You Can Tutor (Select Multiple)</Label>
+                <Card className="p-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {SUBJECTS.map(subject => (
-                      <option key={subject} value={subject}>{subject}</option>
+                      <div key={subject} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`subject-${subject}`}
+                          checked={tutorApplication.subjects.includes(subject)}
+                          onCheckedChange={() => toggleSubject(subject)}
+                        />
+                        <label
+                          htmlFor={`subject-${subject}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {subject}
+                        </label>
+                      </div>
                     ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 pointer-events-none" />
-                </div>
+                  </div>
+                  {tutorApplication.subjects.length > 0 && (
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-xs text-muted-foreground mb-2">Selected subjects:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {tutorApplication.subjects.map(subject => (
+                          <Badge key={subject} variant="secondary">
+                            {subject}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </Card>
               </div>
 
               <div className="space-y-2">
