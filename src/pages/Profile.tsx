@@ -9,9 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { User as UserIcon, Mail, Phone, MapPin, GraduationCap, LogOut, Upload } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, MapPin, GraduationCap, LogOut, Upload, FileText } from 'lucide-react';
 import type { User } from '@/context/AuthContext';
 import { useEffect } from 'react';
+import { TimeSlotSelector } from '@/components/ui/TimeSlotSelector';
 
 
 const Profile = () => {
@@ -21,11 +22,12 @@ const Profile = () => {
   const [profilePhoto, setProfilePhoto] = useState(user?.avatar || '');
   const [photoPreview, setPhotoPreview] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const qualificationFileRef = useRef<HTMLInputElement>(null);
+  const [qualificationFile, setQualificationFile] = useState<File | null>(null);
   const [tutorApplication, setTutorApplication] = useState({
     subjects: '',
-    qualifications: '',
     experience: '',
-    availability: ''
+    availability: [] as Array<{ day: string; times: string[] }>
   });
 
   const [subscribed, setSubscribed] = useState<boolean>(false);
@@ -62,6 +64,37 @@ const Profile = () => {
 
   const handlePhotoUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleQualificationUpload = () => {
+    qualificationFileRef.current?.click();
+  };
+
+  const handleQualificationFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast({
+          title: 'Invalid file type',
+          description: 'Please select a PDF file.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: 'File too large',
+          description: 'Please select a PDF smaller than 10MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setQualificationFile(file);
+      toast({
+        title: 'File selected',
+        description: `${file.name} is ready to upload.`,
+      });
+    }
   };
 
   const handleSaveProfile = () => {
@@ -275,13 +308,34 @@ const Profile = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="qualifications">Qualifications</Label>
-                <Textarea
-                  id="qualifications"
-                  placeholder="List your relevant qualifications and certifications"
-                  value={tutorApplication.qualifications}
-                  onChange={(e) => setTutorApplication({ ...tutorApplication, qualifications: e.target.value })}
+                <Label htmlFor="qualifications">Qualifications (PDF)</Label>
+                <div className="flex items-center gap-3">
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    onClick={handleQualificationUpload}
+                    className="gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {qualificationFile ? 'Change PDF' : 'Upload PDF'}
+                  </Button>
+                  {qualificationFile && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <FileText className="h-4 w-4" />
+                      <span className="truncate max-w-[200px]">{qualificationFile.name}</span>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={qualificationFileRef}
+                  onChange={handleQualificationFileChange}
+                  accept=".pdf"
+                  className="hidden"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Upload a PDF document with your qualifications and certifications (max 10MB)
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -296,11 +350,9 @@ const Profile = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="availability">Availability</Label>
-                <Textarea
-                  id="availability"
-                  placeholder="When are you available to tutor? (days, times, etc.)"
+                <TimeSlotSelector
                   value={tutorApplication.availability}
-                  onChange={(e) => setTutorApplication({ ...tutorApplication, availability: e.target.value })}
+                  onChange={(slots) => setTutorApplication({ ...tutorApplication, availability: slots })}
                 />
               </div>
 
