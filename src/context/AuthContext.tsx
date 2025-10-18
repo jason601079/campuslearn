@@ -105,6 +105,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return true;
       }
 
+      // Student demo account
+      if (identifier === 'student@campus.edu' && password === 'student123') {
+        setUser({
+          id: 'student-user',
+          name: 'Demo Student',
+          identifier,
+          avatar: '',
+          isAdmin: false,
+          isTutor: false,
+          tutorApplicationStatus: 'none',
+        });
+        return true;
+      }
+
+      // Tutor demo account
+      if (identifier === 'tutor@campus.edu' && password === 'tutor123') {
+        setUser({
+          id: 'tutor-user',
+          name: 'Demo Tutor',
+          identifier,
+          avatar: '',
+          isAdmin: false,
+          isTutor: true,
+          tutorApplicationStatus: 'approved',
+        });
+        return true;
+      }
+
       // Microsoft demo account
       if (identifier === 'microsoft@belgiumcampus.edu' && password === 'microsoft') {
         setUser({
