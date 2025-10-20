@@ -1,0 +1,4 @@
+project_id = "moikeoljuxygsrnuhfws"
+
+[functions.send-tutor-application-email]
+verify_jwt = false
