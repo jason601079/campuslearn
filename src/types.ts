@@ -71,5 +71,88 @@ export interface TutorWithModulesResponse {
   modules: Module[];
 }
 
+export interface ErrorRecord {
+  id: string;
+  createdAt: string;
+  message: string;
+  stackTrace?: string | null;
+  endpoint?: string | null;
+  userId?: number | null;
+  additional_info?: any | null; // jsonb can be any object
+}
+
+export interface ErrorResponse {
+  errors: ErrorRecord[];
+  page: number;
+  size: number;
+  total: number;
+  hasMore: boolean;
+}
+
+ export interface Booking {
+  id: string;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  subject: string;
+  status: string;
+  startDatetime: string;
+  endDatetime: string;
+  tutorName: string;
+}
+
+export interface StudentProgress {
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  totalLessons: number;
+  completedLessons: number;
+  completionRate: number;
+  totalLearningHours: number;
+  averageSessionLength: number;
+  subjectProgress: SubjectProgress[];
+  lastActive: string;
+  status: 'active' | 'inactive' | 'at-risk';
+  streak: number;
+  attendance: number;
+}
+
+ export interface SubjectProgress {
+  subject: string;
+  lessonsCompleted: number;
+  totalLessons: number;
+  progress: number;
+}
+
+ export interface TutorStats {
+  totalStudents: number;
+  activeStudents: number;
+  atRiskStudents: number;
+  averageCompletionRate: number;
+  totalTeachingHours: number;
+  studentEngagement: number;
+  upcomingSessions: number;
+  favoriteSubject: string;
+}
+
+ export interface StudentGoal {
+  id: string;
+  title: string;
+  description: string;
+  target: number;
+  current: number;
+  progress: number;
+  icon: React.ComponentType<any>;
+  color: string;
+  completed: boolean;
+  studentId: number;
+}
+
+ export interface PerformanceMetric {
+  label: string;
+  value: number;
+  change: number;
+  trend: 'up' | 'down' | 'neutral';
+}
 
  

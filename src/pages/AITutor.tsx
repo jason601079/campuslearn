@@ -1,22 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Bot, Sparkles } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-
-// Declare Botpress types
-declare global {
-  interface Window {
-    botpressWebChat?: {
-      sendPayload: (payload: { type: string; payload: any }) => void;
-      onEvent: (callback: (event: any) => void, events: string[]) => void;
-    };
-  }
-}
 
 export default function AITutor() {
-  const { user } = useAuth();
-  const [botReady, setBotReady] = useState(false);
-  const [userDataSent, setUserDataSent] = useState(false);
-
   useEffect(() => {
     // Load Botpress webchat scripts
     const script1 = document.createElement('script');
@@ -28,21 +13,6 @@ export default function AITutor() {
     
     script1.onload = () => {
       document.body.appendChild(script2);
-      
-      // Wait for botpress to be available
-      const checkBotpress = setInterval(() => {
-        if (window.botpressWebChat) {
-          clearInterval(checkBotpress);
-          
-          // Listen for bot ready event
-          window.botpressWebChat.onEvent((event: any) => {
-            console.log('Botpress event:', event);
-            if (event.type === 'LIFECYCLE.READY') {
-              setBotReady(true);
-            }
-          }, ['LIFECYCLE.READY']);
-        }
-      }, 100);
     };
     
     script1.onerror = (error) => {
@@ -64,25 +34,6 @@ export default function AITutor() {
       }
     };
   }, []);
-
-  // Send user data when bot is ready
-  useEffect(() => {
-    if (botReady && user && !userDataSent && window.botpressWebChat) {
-      console.log('Sending user data to Botpress:', user);
-      
-      window.botpressWebChat.sendPayload({
-        type: 'trigger',
-        payload: {
-          name: user.name,
-          email: user.email,
-          userId: user.id,
-          role: user.isTutor ? 'tutor' : 'student'
-        }
-      });
-      
-      setUserDataSent(true);
-    }
-  }, [botReady, user, userDataSent]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">

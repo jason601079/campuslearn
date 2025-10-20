@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -9,6 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -20,6 +32,7 @@ import {
   Video,
   Loader2,
   X,
+  Plus,
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, isSameMonth, isToday, addMonths, subMonths, parseISO, isSameDay } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
@@ -34,18 +47,38 @@ interface Event {
   presenter: string;
   title: string;
   tutor_id: number | null;
+  type: 'event' | 'lesson' | 'personal';
+  subject?: string;
+  tutorName?: string;
+  status?: string;
+  description?: string;
+  color?: string;
 }
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedView, setSelectedView] = useState('month');
   const [events, setEvents] = useState<Event[]>([]);
+  const [lessons, setLessons] = useState<Event[]>([]);
+  const [personalEvents, setPersonalEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedDateEvents, setSelectedDateEvents] = useState<Event[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [registerLoading, setRegisterLoading] = useState<string | null>(null);
   const [registrationStatus, setRegistrationStatus] = useState<Record<string, boolean>>({});
-  
+  const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    description: '',
+    date: format(new Date(), 'yyyy-MM-dd'),
+    start_time: '09:00',
+    end_time: '10:00',
+    location: '',
+    color: 'blue'
+  });
+
   const { user, isAuthenticated } = useAuth();
 
   // Get current student ID from AuthContext
@@ -54,6 +87,187 @@ export default function Calendar() {
   // Get auth token
   const getAuthToken = () => {
     return localStorage.getItem('authToken');
+  };
+
+  // === PERSONAL EVENTS FUNCTIONS ===
+  // Fetch personal events from backend
+  const fetchPersonalEvents = async () => {
+    if (!currentStudentId) return;
+
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`http://localhost:9090/api/personal-events/student/${currentStudentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch personal events: ${response.status}`);
+      }
+
+      const personalEventsData = await response.json();
+      const eventsWithType = personalEventsData.map((event: any) => ({
+        id: `personal-${event.id}`,
+        created_at: event.createdAt || new Date().toISOString(),
+        date: event.date,
+        start_time: event.startTime,
+        end_time: event.endTime,
+        location: event.location,
+        presenter: 'You',
+        title: event.title,
+        tutor_id: null,
+        type: 'personal',
+        description: event.description,
+        color: event.color
+      }));
+      setPersonalEvents(eventsWithType);
+    } catch (err) {
+      console.error('Error fetching personal events:', err);
+    }
+  };
+
+  // Add new personal event to backend
+  const handleAddPersonalEvent = async () => {
+    if (!newEvent.title.trim() || !newEvent.date || !currentStudentId) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const token = getAuthToken();
+      const response = await fetch('http://localhost:9090/api/personal-events', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newEvent.title,
+          description: newEvent.description,
+          date: newEvent.date,
+          startTime: newEvent.start_time,
+          endTime: newEvent.end_time,
+          location: newEvent.location,
+          color: newEvent.color,
+          studentId: currentStudentId
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to create event: ${response.status} - ${errorText}`);
+      }
+
+      const createdEvent = await response.json();
+
+      // Add the new event to state
+      const eventWithType: Event = {
+        id: `personal-${createdEvent.id}`,
+        created_at: createdEvent.createdAt || new Date().toISOString(),
+        date: createdEvent.date,
+        start_time: createdEvent.startTime,
+        end_time: createdEvent.endTime,
+        location: createdEvent.location,
+        presenter: 'You',
+        title: createdEvent.title,
+        tutor_id: null,
+        type: 'personal', // This will now be recognized as the literal type
+        description: createdEvent.description,
+        color: createdEvent.color
+      };
+
+      setPersonalEvents(prev => [...prev, eventWithType]);
+
+      // Reset form
+      setNewEvent({
+        title: '',
+        description: '',
+        date: format(new Date(), 'yyyy-MM-dd'),
+        start_time: '09:00',
+        end_time: '10:00',
+        location: '',
+        color: 'blue'
+      });
+      setIsAddEventDialogOpen(false);
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create event');
+      console.error('Error creating personal event:', err);
+    }
+  };
+
+  // Delete personal event
+  const handleDeletePersonalEvent = async (eventId: string) => {
+    try {
+      const token = getAuthToken();
+      // Extract numeric ID for the backend
+      const numericId = eventId.replace('personal-', '');
+
+      const response = await fetch(`http://localhost:9090/api/personal-events/${numericId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete event: ${response.status} - ${errorText}`);
+      }
+
+      // Remove from state
+      setPersonalEvents(prev => prev.filter(event => event.id !== eventId));
+
+      if (selectedEvent?.id === eventId) {
+        setSelectedEvent(null);
+      }
+      if (selectedDateEvents.some(event => event.id === eventId)) {
+        setSelectedDateEvents(prev => prev.filter(event => event.id !== eventId));
+      }
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete event');
+      console.error('Error deleting personal event:', err);
+    }
+  };
+
+  // Handle day click to show all events for that day
+  const handleDayClick = (day: Date) => {
+    const dayEvents = getEventsForDate(day);
+    setSelectedDate(day);
+    setSelectedDateEvents(dayEvents);
+    // If there's only one event, show its details, otherwise show the list
+    if (dayEvents.length === 1) {
+      setSelectedEvent(dayEvents[0]);
+    } else {
+      setSelectedEvent(null);
+    }
+  };
+
+  // === YOUR EXISTING CODE - NO CHANGES ===
+  // Fetch tutor name by ID - using the same endpoint as Dashboard
+  const fetchTutorStudentDetails = async (tutorId: number): Promise<string> => {
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`http://localhost:9090/student/by-tutor/${tutorId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error(`Failed to fetch student for tutor ${tutorId}`);
+      const student = await res.json();
+      return student.name || 'Unknown Tutor';
+    } catch (error) {
+      console.error('Error fetching tutor student details:', error);
+      return 'Unknown Tutor';
+    }
   };
 
   // Fetch events from API
@@ -76,11 +290,16 @@ export default function Calendar() {
       }
 
       const eventsData = await response.json();
-      setEvents(eventsData);
+      // Add type to events
+      const eventsWithType = eventsData.map((event: any) => ({
+        ...event,
+        type: 'event'
+      }));
+      setEvents(eventsWithType);
 
       // Check registration status for all events
       if (currentStudentId) {
-        const status = await checkAllEventsRegistration(eventsData);
+        const status = await checkAllEventsRegistration(eventsWithType);
         setRegistrationStatus(status);
       }
     } catch (err) {
@@ -88,6 +307,59 @@ export default function Calendar() {
       console.error('Error fetching events:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch approved lessons for current student
+  const fetchLessons = async () => {
+    if (!currentStudentId) return;
+
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`http://localhost:9090/api/bookings/student/${currentStudentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch lessons: ${response.status}`);
+      }
+
+      const lessonsData = await response.json();
+
+      // Fetch tutor names for all lessons and transform them
+      const lessonsWithTutorNames = await Promise.all(
+        lessonsData
+          .filter((lesson: any) => lesson.status === 'accepted')
+          .map(async (lesson: any) => {
+            const startDate = new Date(lesson.startDatetime);
+            const endDate = new Date(lesson.endDatetime);
+            const tutorName = await fetchTutorStudentDetails(lesson.tutorId);
+
+            return {
+              id: `lesson-${lesson.id}`,
+              created_at: lesson.created_at || new Date().toISOString(),
+              date: format(startDate, 'yyyy-MM-dd'),
+              start_time: format(startDate, 'HH:mm'),
+              end_time: format(endDate, 'HH:mm'),
+              location: lesson.location || 'TBA',
+              presenter: tutorName,
+              title: `${lesson.subject} Lesson`,
+              tutor_id: lesson.tutorId,
+              type: 'lesson',
+              subject: lesson.subject,
+              tutorName: tutorName,
+              status: lesson.status
+            };
+          })
+      );
+
+      setLessons(lessonsWithTutorNames);
+    } catch (err) {
+      console.error('Error fetching lessons:', err);
     }
   };
 
@@ -124,8 +396,11 @@ export default function Calendar() {
     if (!currentStudentId) return {};
 
     const status: Record<string, boolean> = {};
-    
+
     for (const event of events) {
+      // Skip lessons for registration check
+      if (event.type === 'lesson') continue;
+
       try {
         const isRegistered = await checkEventRegistration(event.id);
         status[event.id] = isRegistered;
@@ -134,7 +409,7 @@ export default function Calendar() {
         status[event.id] = false;
       }
     }
-    
+
     return status;
   };
 
@@ -148,7 +423,7 @@ export default function Calendar() {
     try {
       setRegisterLoading(eventId);
       const token = getAuthToken();
-      
+
       const response = await fetch(
         `http://localhost:9090/student-events/register?studentId=${currentStudentId}&eventId=${eventId}`,
         {
@@ -189,7 +464,7 @@ export default function Calendar() {
     try {
       setRegisterLoading(eventId);
       const token = getAuthToken();
-      
+
       const response = await fetch(
         `http://localhost:9090/student-events/unregister?studentId=${currentStudentId}&eventId=${eventId}`,
         {
@@ -233,13 +508,19 @@ export default function Calendar() {
     const monthEnd = endOfMonth(currentDate);
     const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
     const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
-    
+
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  };
+
+  // Get combined events and lessons - UPDATED TO INCLUDE PERSONAL EVENTS
+  const getCombinedEvents = () => {
+    return [...events, ...lessons, ...personalEvents];
   };
 
   // Get events for a specific date
   const getEventsForDate = (date: Date) => {
-    return events.filter(event => {
+    const combinedEvents = getCombinedEvents();
+    return combinedEvents.filter(event => {
       const eventDate = parseISO(event.date);
       return isSameDay(eventDate, date);
     });
@@ -248,15 +529,23 @@ export default function Calendar() {
   // Get upcoming events (next 3 events)
   const getUpcomingEvents = () => {
     const today = new Date();
-    const upcoming = events
+    const combinedEvents = getCombinedEvents();
+    const upcoming = combinedEvents
       .filter(event => parseISO(event.date) >= today)
       .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
       .slice(0, 3);
-    
+
     return upcoming;
   };
 
   const getEventIcon = (event: Event) => {
+    if (event.type === 'lesson') {
+      return BookOpen;
+    }
+    if (event.type === 'personal') {
+      return CalendarIcon;
+    }
+
     const title = event.title.toLowerCase();
     const presenter = event.presenter.toLowerCase();
 
@@ -272,6 +561,23 @@ export default function Calendar() {
   };
 
   const getEventColor = (event: Event) => {
+    // Personal events use their stored color
+    if (event.type === 'personal' && event.color) {
+      const colorMap: { [key: string]: string } = {
+        blue: 'bg-blue-100 text-blue-800 border-blue-200',
+        green: 'bg-green-100 text-green-800 border-green-200',
+        red: 'bg-red-100 text-red-800 border-red-200',
+        yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        purple: 'bg-purple-100 text-purple-800 border-purple-200',
+        orange: 'bg-orange-100 text-orange-800 border-orange-200'
+      };
+      return colorMap[event.color] || colorMap.blue;
+    }
+
+    if (event.type === 'lesson') {
+      return 'bg-orange-100 text-orange-800 border-orange-200';
+    }
+
     const title = event.title.toLowerCase();
     const presenter = event.presenter.toLowerCase();
 
@@ -300,6 +606,10 @@ export default function Calendar() {
   };
 
   const isRegistered = (eventId: string) => {
+    // Lessons and personal events are always considered "registered"
+    if (eventId.startsWith('lesson-') || eventId.startsWith('personal-')) {
+      return true;
+    }
     return registrationStatus[eventId] || false;
   };
 
@@ -310,6 +620,7 @@ export default function Calendar() {
 
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
+    setSelectedDateEvents([]);
   };
 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -318,9 +629,18 @@ export default function Calendar() {
   const upcomingEvents = getUpcomingEvents();
 
   useEffect(() => {
-    fetchEvents();
+    const fetchData = async () => {
+      setLoading(true);
+      await Promise.all([fetchEvents(), fetchLessons(), fetchPersonalEvents()]);
+      setLoading(false);
+    };
+
+    if (isAuthenticated) {
+      fetchData();
+    }
   }, [isAuthenticated, currentStudentId]);
 
+  // === RENDER SECTION - MINIMAL CHANGES ===
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-64">
@@ -349,8 +669,8 @@ export default function Calendar() {
       <div className="flex items-center justify-center min-h-64">
         <div className="text-center">
           <p className="text-destructive">Error: {error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Retry
@@ -367,6 +687,107 @@ export default function Calendar() {
           <h1 className="text-3xl font-bold">Calendar & Events</h1>
           <p className="text-muted-foreground">Manage your study schedule and sessions</p>
         </div>
+        {/* ADD PERSONAL EVENT BUTTON */}
+        <Dialog open={isAddEventDialogOpen} onOpenChange={setIsAddEventDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-primary hover:opacity-90">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Personal Event
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Personal Event</DialogTitle>
+              <DialogDescription>
+                Create a personal event that only you can see.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Event Title</Label>
+                <Input
+                  id="title"
+                  value={newEvent.title}
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                  placeholder="Enter event title"
+                />
+              </div>
+              <div>
+                <Label htmlFor="description">Description (Optional)</Label>
+                <Textarea
+                  id="description"
+                  value={newEvent.description}
+                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                  placeholder="Enter event description"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={newEvent.date}
+                    onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="color">Color</Label>
+                  <Select value={newEvent.color} onValueChange={(value) => setNewEvent({ ...newEvent, color: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="blue">Blue</SelectItem>
+                      <SelectItem value="green">Green</SelectItem>
+                      <SelectItem value="red">Red</SelectItem>
+                      <SelectItem value="yellow">Yellow</SelectItem>
+                      <SelectItem value="purple">Purple</SelectItem>
+                      <SelectItem value="orange">Orange</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="start_time">Start Time</Label>
+                  <Input
+                    id="start_time"
+                    type="time"
+                    value={newEvent.start_time}
+                    onChange={(e) => setNewEvent({ ...newEvent, start_time: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="end_time">End Time</Label>
+                  <Input
+                    id="end_time"
+                    type="time"
+                    value={newEvent.end_time}
+                    onChange={(e) => setNewEvent({ ...newEvent, end_time: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="location">Location (Optional)</Label>
+                <Input
+                  id="location"
+                  value={newEvent.location}
+                  onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+                  placeholder="Enter location"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddEventDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddPersonalEvent} disabled={!newEvent.title.trim()}>
+                Add Event
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-4">
@@ -385,7 +806,7 @@ export default function Calendar() {
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <Select value={selectedView} onValueChange={setSelectedView}>
                     <SelectTrigger className="w-28">
@@ -418,41 +839,43 @@ export default function Calendar() {
                       </div>
                     ))}
                   </div>
-                  
+
                   {/* Day columns */}
                   {days.map((day, index) => {
                     const currentWeekDate = new Date(currentDate);
                     currentWeekDate.setDate(currentWeekDate.getDate() - currentWeekDate.getDay() + 1 + index);
-                    
+
                     return (
                       <div key={day} className="border-r border-border last:border-r-0">
                         <div className="h-12 border-b border-border p-2 text-center font-medium">
                           <div className="text-sm">{day}</div>
                           <div className="text-lg">{currentWeekDate.getDate()}</div>
                         </div>
-                        
+
                         {/* Time slots */}
                         <div className="relative">
                           {hours.slice(8, 20).map((hour) => (
                             <div key={hour} className="h-16 border-b border-border hover:bg-muted/20 transition-colors" />
                           ))}
-                          
+
                           {/* Events overlay */}
                           {getEventsForDate(currentWeekDate).map((event, eventIndex) => {
                             const startHour = parseInt(event.start_time.split(':')[0]);
                             const topPosition = (startHour - 8) * 64 + 16;
-                            
+
                             return (
-                              <div 
-                                key={event.id} 
+                              <div
+                                key={event.id}
                                 className="absolute left-1 right-1 p-1"
                                 style={{ top: `${topPosition}px` }}
                               >
-                                <div 
+                                <div
                                   className={`p-2 rounded text-xs border cursor-pointer hover:opacity-80 transition-opacity ${getEventColor(event)}`}
                                   onClick={() => handleEventClick(event)}
                                 >
-                                  <div className="font-medium truncate">{event.title}</div>
+                                  <div className="font-medium truncate">
+                                    {event.type === 'lesson' ? event.subject : event.title}
+                                  </div>
                                   <div className="opacity-80">{formatTime(event.start_time)}</div>
                                 </div>
                               </div>
@@ -464,7 +887,7 @@ export default function Calendar() {
                   })}
                 </div>
               )}
-              
+
               {selectedView === 'month' && (
                 <div className="p-4">
                   <div className="grid grid-cols-7 gap-1 mb-4">
@@ -479,41 +902,42 @@ export default function Calendar() {
                       const isCurrentMonth = isSameMonth(day, currentDate);
                       const isCurrentDay = isToday(day);
                       const dayEvents = getEventsForDate(day);
-                      
+
                       return (
-                        <div 
-                          key={index} 
-                          className={`aspect-square border border-border p-2 hover:bg-muted/20 transition-colors cursor-pointer flex flex-col ${
-                            !isCurrentMonth ? 'text-muted-foreground/40' : ''
-                          }`}
+                        <div
+                          key={index}
+                          className={`aspect-square border border-border p-2 hover:bg-muted/20 transition-colors cursor-pointer flex flex-col ${!isCurrentMonth ? 'text-muted-foreground/40' : ''
+                            }`}
+                          onClick={() => handleDayClick(day)}
                         >
-                          <div className={`text-sm font-medium ${
-                            isCurrentDay 
-                              ? 'bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center' 
+                          <div className={`text-sm font-medium ${isCurrentDay
+                              ? 'bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center'
                               : ''
-                          }`}>
+                            }`}>
                             {format(day, 'd')}
                           </div>
-                          
+
                           {/* Events indicators */}
                           <div className="flex-1 overflow-hidden mt-1 space-y-1">
                             {dayEvents.slice(0, 2).map((event) => (
-                              <div 
+                              <div
                                 key={event.id}
                                 className={`text-xs p-1 rounded truncate border cursor-pointer hover:opacity-80 transition-opacity ${getEventColor(event)}`}
-                                title={event.title}
-                                onClick={() => handleEventClick(event)}
+                                title={event.type === 'lesson' ? `${event.subject} with ${event.tutorName}` : event.title}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEventClick(event);
+                                }}
                               >
-                                {formatTime(event.start_time)} - {event.title}
+                                {formatTime(event.start_time)} - {event.type === 'lesson' ? event.subject : event.title}
                               </div>
                             ))}
                             {dayEvents.length > 2 && (
-                              <div 
+                              <div
                                 className="text-xs text-muted-foreground text-center cursor-pointer hover:text-foreground"
-                                onClick={() => {
-                                  if (dayEvents.length > 0) {
-                                    handleEventClick(dayEvents[0]);
-                                  }
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDayClick(day);
                                 }}
                               >
                                 +{dayEvents.length - 2} more
@@ -532,12 +956,78 @@ export default function Calendar() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Selected Date Events Modal */}
+          {selectedDateEvents.length > 0 && (
+            <Card className="sticky top-6">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-lg">
+                    Events on {format(selectedDate!, 'MMMM d, yyyy')}
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedDateEvents([])}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <CardDescription>
+                  {selectedDateEvents.length} event{selectedDateEvents.length !== 1 ? 's' : ''} scheduled
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {selectedDateEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className={`p-3 rounded-lg border cursor-pointer hover:opacity-80 transition-opacity ${getEventColor(event)}`}
+                    onClick={() => {
+                      setSelectedEvent(event);
+                      setSelectedDateEvents([]);
+                    }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm">
+                          {event.type === 'lesson' ? `${event.subject} Lesson` :
+                            event.type === 'personal' ? event.title : event.title}
+                        </h4>
+                        <p className="text-xs opacity-80 mt-1">
+                          {formatTime(event.start_time)} - {formatTime(event.end_time)}
+                        </p>
+                        <p className="text-xs opacity-80">
+                          {event.type === 'lesson' ? `Tutor: ${event.tutorName}` :
+                            event.type === 'personal' ? 'Personal Event' : event.presenter}
+                        </p>
+                      </div>
+                      {event.type === 'personal' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeletePersonalEvent(event.id);
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Event Details Modal */}
           {selectedEvent && (
             <Card className="sticky top-6">
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg">{selectedEvent.title}</CardTitle>
+                  <CardTitle className="text-lg">
+                    {selectedEvent.type === 'lesson' ? `${selectedEvent.subject} Lesson` :
+                      selectedEvent.type === 'personal' ? selectedEvent.title : selectedEvent.title}
+                  </CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -546,7 +1036,14 @@ export default function Calendar() {
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                <CardDescription>Presented by {selectedEvent.presenter}</CardDescription>
+                <CardDescription>
+                  {selectedEvent.type === 'lesson'
+                    ? `Tutor: ${selectedEvent.tutorName}`
+                    : selectedEvent.type === 'personal'
+                      ? 'Personal Event'
+                      : `Presented by ${selectedEvent.presenter}`
+                  }
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2 text-sm">
@@ -562,12 +1059,31 @@ export default function Calendar() {
                     <MapPin className="mr-2 h-4 w-4" />
                     {selectedEvent.location}
                   </div>
+                  {selectedEvent.type === 'lesson' && (
+                    <div className="flex items-center text-muted-foreground">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Subject: {selectedEvent.subject}
+                    </div>
+                  )}
+                  {selectedEvent.type === 'personal' && selectedEvent.description && (
+                    <div className="text-muted-foreground mt-2">
+                      {selectedEvent.description}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
                   {isPastEvent(selectedEvent) ? (
                     <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-                      Past Event
+                      Past {selectedEvent.type === 'lesson' ? 'Lesson' : 'Event'}
+                    </Badge>
+                  ) : selectedEvent.type === 'lesson' ? (
+                    <Badge variant="default" className="bg-orange-100 text-orange-800">
+                      Scheduled Lesson
+                    </Badge>
+                  ) : selectedEvent.type === 'personal' ? (
+                    <Badge variant="default" className="bg-blue-100 text-blue-800">
+                      Personal Event
                     </Badge>
                   ) : isRegistered(selectedEvent.id) ? (
                     <Badge variant="default" className="bg-green-100 text-green-800">
@@ -578,29 +1094,46 @@ export default function Calendar() {
                   )}
                 </div>
 
-                {!isPastEvent(selectedEvent) && (
-                  <Button
-                    className={`w-full ${
-                      isRegistered(selectedEvent.id)
-                        ? 'bg-destructive hover:bg-destructive/90'
-                        : 'bg-gradient-primary hover:opacity-90'
-                    }`}
-                    onClick={() =>
-                      isRegistered(selectedEvent.id)
-                        ? handleUnregister(selectedEvent.id)
-                        : handleRegister(selectedEvent.id)
-                    }
-                    disabled={registerLoading === selectedEvent.id}
-                  >
-                    {registerLoading === selectedEvent.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : isRegistered(selectedEvent.id) ? (
-                      'Unregister'
-                    ) : (
-                      'Register for Event'
-                    )}
-                  </Button>
-                )}
+                {/* Action buttons */}
+                <div className="space-y-2">
+                  {/* Only show register button for events, not lessons or personal events */}
+                  {!isPastEvent(selectedEvent) && selectedEvent.type === 'event' && (
+                    <Button
+                      className={`w-full ${isRegistered(selectedEvent.id)
+                          ? 'bg-destructive hover:bg-destructive/90'
+                          : 'bg-gradient-primary hover:opacity-90'
+                        }`}
+                      onClick={() =>
+                        isRegistered(selectedEvent.id)
+                          ? handleUnregister(selectedEvent.id)
+                          : handleRegister(selectedEvent.id)
+                      }
+                      disabled={registerLoading === selectedEvent.id}
+                    >
+                      {registerLoading === selectedEvent.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : isRegistered(selectedEvent.id) ? (
+                        'Unregister'
+                      ) : (
+                        'Register for Event'
+                      )}
+                    </Button>
+                  )}
+
+                  {/* Delete button for personal events */}
+                  {selectedEvent.type === 'personal' && (
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => {
+                        handleDeletePersonalEvent(selectedEvent.id);
+                        setSelectedEvent(null);
+                      }}
+                    >
+                      Delete Event
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -608,12 +1141,12 @@ export default function Calendar() {
           {/* Upcoming Events */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Upcoming Events</CardTitle>
+              <CardTitle className="text-lg">Upcoming Events & Lessons</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {upcomingEvents.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No upcoming events
+                  No upcoming events or lessons
                 </p>
               ) : (
                 upcomingEvents.map((event) => {
@@ -622,8 +1155,8 @@ export default function Calendar() {
                   const pastEvent = isPastEvent(event);
 
                   return (
-                    <div 
-                      key={event.id} 
+                    <div
+                      key={event.id}
                       className="p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                       onClick={() => handleEventClick(event)}
                     >
@@ -633,14 +1166,28 @@ export default function Calendar() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
-                            <h4 className="font-medium text-sm">{event.title}</h4>
-                            {registered && (
+                            <h4 className="font-medium text-sm">
+                              {event.type === 'lesson' ? `${event.subject} Lesson` :
+                                event.type === 'personal' ? event.title : event.title}
+                            </h4>
+                            {event.type === 'lesson' ? (
+                              <Badge variant="default" className="bg-orange-100 text-orange-800 text-xs">
+                                Lesson
+                              </Badge>
+                            ) : event.type === 'personal' ? (
+                              <Badge variant="default" className="bg-blue-100 text-blue-800 text-xs">
+                                Personal
+                              </Badge>
+                            ) : registered && (
                               <Badge variant="default" className="bg-green-100 text-green-800 text-xs">
                                 Registered
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground">{event.presenter}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {event.type === 'lesson' ? event.tutorName :
+                              event.type === 'personal' ? 'Personal Event' : event.presenter}
+                          </p>
                           <div className="flex items-center text-xs text-muted-foreground mt-1">
                             <Clock className="mr-1 h-3 w-3" />
                             {format(parseISO(event.date), 'MMM d')} • {formatTime(event.start_time)}

@@ -17,6 +17,7 @@ import ResourceDetail from "./pages/ResourceDetail";
 import Calendar from "./pages/Calendar";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import TutorApplications from "./pages/TutorApplications";
 import Tutor from "./pages/Tutor";
 import ContentUpload from "./pages/tutor/ContentUpload";
 import MyStudents from "./pages/tutor/MyStudents";
@@ -24,6 +25,8 @@ import MyEvents from "./pages/tutor/MyEvents";
 import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import ProgressPage from "./pages/Progress";
+import { NotificationsPage } from "./pages/notifications";
 
 const queryClient = new QueryClient();
 
@@ -62,11 +65,14 @@ const AppRoutes = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/tutor-applications" element={<TutorApplications />} />
         <Route path="/tutor" element={<Tutor />} />
         <Route path="/tutor/content" element={<ContentUpload />} />
         <Route path="/tutor/students" element={<MyStudents />} />
         <Route path="/tutor/events" element={<MyEvents />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/student-progress" element={<ProgressPage/>}/>
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Routes>
     </MainLayout>
   );
