@@ -42,12 +42,7 @@ const Login = () => {
           title: 'Login Successful',
           description: 'Welcome to CampusLearn!',
         });
-        
-        // Small delay to ensure user state is updated
-        setTimeout(() => {
-          // Now we can safely access the auth context user
-          // This will be handled by the auth context check below
-        }, 100);
+        // Navigation is handled by useEffect watching user state
       } else {
         toast({
           title: 'Login Failed',
