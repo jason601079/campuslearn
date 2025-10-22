@@ -21,12 +21,10 @@ const Login = () => {
 
   // Redirect based on user role after login
   React.useEffect(() => {
-    if (user) {
-      if (user.isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+    if (user?.isAdmin) {
+      navigate('/admin', { replace: true });
+    } else if (user && !user.isAdmin) {
+      navigate('/', { replace: true });
     }
   }, [user, navigate]);
 
