@@ -27,6 +27,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import ProgressPage from "./pages/Progress";
 import { NotificationsPage } from "./pages/notifications";
+import StudyCompanion from "./pages/StudyCompanion";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const AppRoutes = () => {
         <Route path="/tutor/content" element={<ContentUpload />} />
         <Route path="/tutor/students" element={<MyStudents />} />
         <Route path="/tutor/events" element={<MyEvents />} />
+        <Route path="/companion" element={<StudyCompanion />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/student-progress" element={<ProgressPage/>}/>
         <Route path="/notifications" element={<NotificationsPage />} />
