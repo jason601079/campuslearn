@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Settings, User, LogOut, Menu, Home, Calendar, BookOpen, MessageSquare, Users, GraduationCap, BarChart, Bell, HelpCircle, FileText, Upload, UserCheck, LayoutDashboard, ClipboardList, Sparkles } from 'lucide-react';
+import { Search, Settings, User, LogOut, Menu, Home, Calendar, BookOpen, MessageSquare, Users, GraduationCap, BarChart, Bell, HelpCircle, FileText, Upload, UserCheck, LayoutDashboard, ClipboardList } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,7 +55,6 @@ export function TopNavigation({
         { icon: Calendar, label: 'Calendar', path: '/calendar' },
         { icon: Calendar, label: 'Events', path: '/events' },
         { icon: GraduationCap, label: 'AI Tutor', path: '/ai-tutor' },
-        { icon: Sparkles, label: 'Study Companion', path: '/companion' },
         { icon: Users, label: 'Tutors', path: '/tutors' },
         { icon: BookOpen, label: 'Resources', path: '/resources' },
         { icon: MessageSquare, label: 'Forum', path: '/forum' },
