@@ -147,21 +147,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return true;
       }
 
-      // Test account for tutor application
-      if (identifier === 'magicword255@gmail.com' && password === 'test123') {
-        setUser({
-          id: 'test-student',
-          name: 'Test Student',
-          identifier,
-          email: identifier,
-          avatar: '',
-          isAdmin: false,
-          isTutor: false,
-          tutorApplicationStatus: 'none',
-        });
-        return true;
-      }
-
       const res = await fetch('http://localhost:9090/student/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
